@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「保存参数设置」表格里的一行 —— **一行装两项**，每项三格（行名 + 已保存 + 当前）。
+
+  为什么一行两项：v2.6 那版一行一项、一共十行，竖着占掉整屏还看不到底。
+  分成两半之后 3 行就装完了，而且"已保存 / 当前"的对照关系没丢。
+
+  为什么每格都写 singleLine：这一行有六格，横向宽度是硬约束。
+  偶尔挤不下时宁可裁掉，也好过折成两行把表格排歪。
+
+  权重 1.05 : 1 : 1（每半）—— 行名最长 4 个汉字（「竖屏方向」），
+  值最长是「横 270°」这种角度写法（v2.18.4 起方向类项一律写角度，
+  见 MainActivity.orient / phoneRotation），这两边都要留够，不能厚此薄彼。
+
+  行数与内容由代码给（见 MainActivity.profileItems），样式留在这里；
+  以后调配比、改字号只动这个文件。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp">
+
+    <!-- ============ 左半：第一项 ============ -->
+
+    <TextView
+        android:id="@+id/cellName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.05"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/cellSaved"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/cellNow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+    <!-- ============ 右半：第二项 ============ -->
+
+    <TextView
+        android:id="@+id/cellName2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1.05"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/cellSaved2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/cellNow2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="11sp" />
+
+</LinearLayout>

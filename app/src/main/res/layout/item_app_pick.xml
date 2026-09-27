@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」配置页里的一格应用。
+
+  ── 勾选态怎么表达 ──────────────────────────────────────────────────
+  不画底框（v2.18.9 起）：一屏几十个描边框跟封面屏的观感不搭。
+      没勾上的 → 图标暗下去（alpha 0.42）+ 名字也淡
+      勾上的   → 全亮 + 右上角一个绿勾
+
+  ── 收藏星标（v4.14）──────────────────────────────────────────────
+  收藏过的应用，<b>图标左上角</b>挂一颗小星（跟右上角那个绿勾一个路数：
+  同样是压在图标上，不额外占地方）。左上 / 右上各一个角标，谁也不会盖住谁。
+
+  ── 角标为什么要嵌进 pickIconBox（v2.19.0 改）─────────────────────
+  之前角标是挂在最外层 FrameLayout 上的，于是它落在**整个格子的右上角**——
+  而图标是居中的，两者之间隔着一段空白，看着像"格子右上角贴了一颗痣"，
+  用户的原话是"不用非得做到图标外面，重合一部分也是可以的"。
+  现在把角标和图标一起塞进一个 wrap_content 的 FrameLayout：
+  角标 gravity=top|end 就正好落在**图标自己的**右上角上，压住四个角里的一小块，
+  而且因为父容器是 wrap_content，它是"叠加"上去的，一点额外空间都不占。
+
+  ── 尺寸是运行时改的 ────────────────────────────────────────────────
+  这里写的 40dp 只是占位 —— 「图标大小」那档设置由 CoverLauncherActivity
+  在 getView 里改 pickIcon 的 LayoutParams；行距则由外层 itemRoot 的上下 padding 撑。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/itemRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="2dp"
+    android:paddingTop="3dp"
+    android:paddingRight="2dp"
+    android:paddingBottom="3dp">
+
+    <LinearLayout
+        android:id="@+id/pickBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/pickIconBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/pickIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/pickCheck"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="top|end"
+                android:contentDescription="@string/launcher_picked"
+                android:src="@drawable/ic_pick_check"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/pickFav"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="top|start"
+                android:contentDescription="@string/launcher_fav"
+                android:src="@drawable/ic_pick_star"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/pickLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="#FFEDEDF0"
+            android:textSize="10sp" />
+    </LinearLayout>
+</FrameLayout>

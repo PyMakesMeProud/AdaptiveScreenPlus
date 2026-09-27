@@ -1,0 +1,466 @@
+<resources>
+    <!--
+      桌面 / 应用信息里的显示名（v2.18.1 改）。
+      最近任务卡片走的是另一条路：MainActivity 用 setTaskDescription 把标题设成英文名，
+      所以「桌面中文、后台英文」不需要两套 label，也不会互相打架。
+      英文系统下的名字由 values-en/strings.xml 覆盖。
+    -->
+    <string name="app_name">Z flip便携屏扩展</string>
+    <string name="app_name_en">Adaptive Screen++</string>
+    <string name="cover_home_label">副屏桌面</string>
+
+    <!-- 桌面小组件 -->
+    <string name="widget_panel_title">双屏快捷面板</string>
+    <string name="widget_panel_desc">两个按钮：折叠/展开切换 · 双屏模式</string>
+    <string name="widget_panel_cover_title">双屏快捷面板（外屏）</string>
+    <string name="widget_panel_cover_desc">外屏专用：折叠/展开 · 双屏模式 · 一键投屏 · 自适应旋转</string>
+    <string name="widget_btn_fold">折叠/展开\n切换</string>
+    <string name="widget_btn_dual">双屏模式</string>
+    <string name="widget_btn_sync">自适应旋转</string>
+    <string name="widget_btn_cast">一键投屏</string>
+    <string name="widget_btn_lock">锁横屏</string>
+
+    <!--
+      老虎机小组件。三格里的「图案」是手机里已装应用的图标 —— 每次开摇现从图标库
+      （AppIconLib）里抽几个，另加一个「七」当彩蛋；池子怎么抽写在 SlotPool 里，
+      所以这两条描述只说玩法、不罗列池子里有什么。
+      stats 那条用位置参数：三个数字的顺序换过一回就乱套，别退回 %d。
+    -->
+    <string name="widget_slot_title">老虎机</string>
+    <string name="widget_slot_desc">三格摇杆摇奖得分，点计分器可切成三个快捷按钮</string>
+    <string name="widget_slot_cover_title">老虎机（外屏）</string>
+    <string name="widget_slot_cover_desc">外屏专用：摇奖得分，计分器可切成三个快捷按钮</string>
+    <string name="widget_slot_idle">—</string>
+    <string name="widget_slot_ready">点右边的摇杆开摇</string>
+    <string name="widget_slot_stats">已摇 %1$d 次 · 二连 %2$d · 三连 %3$d</string>
+    <string name="widget_slot_double">二连！</string>
+    <string name="widget_slot_triple">三连！！</string>
+    <string name="widget_slot_none">差一点</string>
+    <string name="widget_slot_lever">摇杆</string>
+    <string name="widget_slot_score">得分</string>
+    <string name="widget_slot_win">中奖了！</string>
+    <string name="widget_slot_btn_hint">点格子用功能 · 点摇杆设置</string>
+    <string name="widget_slot_ran">已执行：%1$s</string>
+    <string name="widget_slot_cfg_title">老虎机快捷位</string>
+    <string name="widget_slot_cfg_hint">三个格子各挂一个开关类功能，点哪格执行哪个。</string>
+    <string name="widget_slot_cfg_row">第 %1$d 格：%2$s</string>
+    <string name="widget_slot_cfg_pick">第 %1$d 格挂什么</string>
+    <string name="widget_slot_cfg_none">（不设置）</string>
+
+    <!-- ===== 「自定义操作」外屏组件（2×2 四格，格子里挂什么自己挑） ===== -->
+    <string name="widget_custom_cover_title">自定义操作</string>
+    <string name="widget_custom_cover_desc">外屏专用：四个按钮各挂一个动作，挂什么自己挑</string>
+    <string name="widget_custom_empty">＋</string>
+    <string name="widget_custom_cfg_title">自定义操作 · 设置</string>
+    <string name="widget_custom_cfg_hint">四个按钮各挂一个动作，点哪格执行哪个。点空格子就能设置。</string>
+    <string name="widget_custom_cfg_row">按钮 %1$d：%2$s</string>
+    <string name="widget_custom_cfg_pick">按钮 %1$d 挂什么</string>
+
+    <!--
+      ===== 首次打开应用时的弹窗 =====
+      只留「自适应旋转」这一条最容易开错、开了会让人以为软件坏了的提醒；其余功能各自的
+      ⓘ 里都有。正文由用户给定（2026-09-27），照写、别再加功能罗列。
+    -->
+    <string name="info_app_intro">自适应旋转会根据应用的横竖屏状态自动旋转内屏方向，为手持便携屏设计。\n\n画面可能整体偏转 90 度，固定方向的显示器请勿打开。</string>
+
+    <!-- ===== 「手机状态」外屏组件（2×2 只读：电量 / CPU 温度 / 内存 / 存储） ===== -->
+    <string name="widget_status_cover_title">手机状态</string>
+    <string name="widget_status_cover_desc">外屏专用：电量、CPU 温度、内存占用、存储占用</string>
+
+    <!--
+      外屏启动器（v2.18.8）。命名规矩：小组件那两条给"钉到桌面时看到的名字/描述"，
+      launcher_* 其余几条是它自己的界面文案。
+      ⚠ 别写「不用再装 Good Lock」这类对比话术 —— 用户知道来龙去脉，界面里不必提。
+    -->
+    <string name="launcher_widget_name">外屏启动器</string>
+    <string name="launcher_widget_desc">封面屏上的应用启动器：图标网格，点一下就在那块屏打开</string>
+    <string name="launcher_widget_empty">还没挑应用\n点顶栏的齿轮去挑几个</string>
+    <string name="launcher_apps_fmt">已选 %1$d 个</string>
+    <string name="launcher_pick_none">还没选</string>
+    <string name="launcher_title">外屏启动器</string>
+    <string name="launcher_search_hint">搜索应用</string>
+    <string name="launcher_clear">清空</string>
+    <string name="launcher_clear_confirm">把已勾选的应用全部从启动器里移掉？</string>
+    <string name="launcher_done">完成</string>
+    <string name="launcher_picked">已选</string>
+    <string name="launcher_config">打开设置</string>
+    <!-- 「导入」= 从 MultiStar/Good Lock 那份外屏组件白名单里，把用户已经挑好的应用一次性搬过来。
+         不写第三方应用的名字，只说"系统里已有的那份清单"。 -->
+    <string name="launcher_import">导入</string>
+    <string name="launcher_import_confirm">检测到系统里已有一份外屏应用清单（%1$d 个应用），把这份清单导入进来？\n\n导入会覆盖当前已勾选的内容。</string>
+    <string name="launcher_import_none">没有找到可导入的清单。可能这台机器没用过系统自带的那个外屏启动器组件。</string>
+    <string name="launcher_import_done">已导入 %1$d 个应用</string>
+    <string name="launcher_import_fail">读取清单失败，确认 Shizuku 已授权</string>
+
+    <!-- 工具条上的四个图标（内容描述；点排序会轮换，点绿的那个看当前用的是哪种） -->
+    <string name="launcher_search">搜索应用</string>
+    <string name="launcher_sort">切换排序</string>
+    <string name="launcher_look">调整外观</string>
+    <string name="launcher_photo">背景图片</string>
+    <string name="launcher_close">关闭</string>
+
+    <!-- 背景图片那两颗菜单项与几句提示 -->
+    <string name="launcher_photo_change">更换图片</string>
+    <string name="launcher_photo_remove">移除背景图</string>
+    <string name="launcher_photo_saving">正在处理图片…</string>
+    <string name="launcher_photo_done">背景图已设置</string>
+    <string name="launcher_photo_removed">背景图已移除</string>
+    <string name="launcher_photo_fail">这张图读不出来，换一张试试</string>
+
+    <!-- 排序方式的名字。三处共用：配置页的选择器、点排序图标后的提示。 -->
+    <string name="launcher_sort_manual">手动顺序</string>
+    <string name="launcher_sort_name">按名称</string>
+    <string name="launcher_sort_usage">按常用</string>
+    <string name="launcher_sort_now">排序：%1$s</string>
+
+    <!-- 外观面板 -->
+    <string name="launcher_look_cols">一排几个</string>
+    <string name="launcher_look_cols_fmt">%1$d 个</string>
+    <string name="launcher_look_icon">图标大小</string>
+    <string name="launcher_look_gap">行距</string>
+    <string name="launcher_look_label">应用名称</string>
+    <string name="launcher_size_small">小</string>
+    <string name="launcher_size_mid">中</string>
+    <string name="launcher_size_large">大</string>
+    <string name="launcher_gap_tight">紧</string>
+    <string name="launcher_gap_mid">标准</string>
+    <string name="launcher_gap_loose">松</string>
+    <string name="launcher_label_show">显示</string>
+    <string name="launcher_label_hide">隐藏</string>
+
+    <!--
+      外观条第三行：图标形状 + 底板不透明度。
+
+      ⚠ 这组胶囊直接显示百分比（launcher_alpha_fmt），不要写成「淡 / 中 / 浓」——
+        半透明底板用「透明度高」指代不清（更透还是更实？），一个数字没歧义。
+        四档在 LauncherPrefs.ALPHA_CHOICES，改档位要连 drawable 一起改。
+      ⚠ 「图标形状」的默认档是**圆形**（LauncherPrefs.iconShape 里有理由），
+        所以这里「圆形」那条不是可有可无的装饰。
+    -->
+    <string name="launcher_look_shape">图标形状</string>
+    <string name="launcher_look_alpha">不透明度</string>
+    <string name="launcher_shape_app">原样</string>
+    <string name="launcher_shape_round">圆角</string>
+    <string name="launcher_shape_circle">圆形</string>
+    <string name="launcher_alpha_fmt">%1$d%%</string>
+
+    <!-- 搜索页 -->
+    <string name="launcher_search_title">搜索应用</string>
+    <string name="launcher_search_idle">打几个字就能搜</string>
+    <string name="launcher_search_empty">没有匹配的应用</string>
+
+    <!--
+      配置页 v2.19.0 新增：编辑模式开关、拖拽提示、导入/导出、副屏桌面顺序。
+      ⚠ 提示语一律"动词打头、不带句号"（跟这套界面其余部分一致），别写成说明文。
+    -->
+    <string name="launcher_hint_tap">点图标显示/隐藏 · 长按不动＝收藏或卸载 · 拖动＝排序</string>
+    <string name="launcher_hint_fav">只看收藏 · 长按不动＝收藏或卸载 · 拖动＝换位</string>
+    <string name="launcher_fav">收藏夹</string>
+    <string name="launcher_unfav">取消收藏</string>
+    <string name="launcher_uninstall">卸载应用</string>
+    <string name="launcher_uninstall_confirm">卸载「%1$s」？</string>
+    <string name="launcher_uninstall_msg">会把这个应用从手机里删掉，启动器与收藏夹里的记录一起清掉。</string>
+    <string name="launcher_uninstalling">正在卸载「%1$s」…</string>
+    <string name="launcher_uninstall_done">已卸载「%1$s」</string>
+    <string name="launcher_uninstall_fail">卸载失败：%1$s</string>
+    <string name="launcher_uninstall_no_shizuku">需要 Shizuku 授权才能卸载应用</string>
+    <string name="launcher_uninstall_bad_pkg">这个包名不对劲，没敢往下发命令</string>
+    <string name="launcher_fav_added">已收藏「%1$s」</string>
+    <string name="launcher_fav_removed">已取消收藏「%1$s」</string>
+    <string name="launcher_fav_only_on">只看收藏</string>
+    <string name="launcher_fav_only_off">显示全部应用</string>
+    <string name="launcher_fav_count">收藏 %1$d 个</string>
+    <string name="launcher_fav_bar">只看收藏</string>
+    <string name="launcher_hint_drag">松手放下 · 拖到末尾会自己滚</string>
+    <string name="launcher_hint_search">搜索时不排序，清空搜索框再拖</string>
+    <string name="launcher_manual_on">已切到手动顺序</string>
+
+    <!-- 导入 / 导出：点底栏那个「导入」弹出来的两项 -->
+    <string name="launcher_io_title">清单与顺序</string>
+    <string name="launcher_io_sys">导入系统外屏清单</string>
+    <string name="launcher_io_sys_sub">把系统里那份已有清单整个搬过来（会覆盖当前勾选）</string>
+    <string name="launcher_io_export">把当前顺序写入副屏桌面</string>
+    <string name="launcher_io_export_sub">一次性把当前勾选的顺序写过去；写完两边各走各的，不会自动跟着变</string>
+    <string name="launcher_io_export_done">已把 %1$d 个应用的顺序写入副屏桌面</string>
+    <string name="launcher_io_export_empty">还没挑应用，没东西可写</string>
+
+    <!-- 副屏桌面顺序：启动器排序器里的第四种，以及副屏桌面自己的兜底 -->
+    <string name="launcher_sort_home">副屏桌面顺序</string>
+    <string name="home_order_none">副屏桌面还没有自己的顺序 —— 在启动器里排好后，用「导入 → 把当前顺序写入副屏桌面」写一次</string>
+
+    <!-- 版本与更新 -->
+    <string name="changelog_title">版本与更新</string>
+    <string name="changelog_back">返回</string>
+    <string name="changelog_current">当前版本</string>
+    <!-- 标题旁入口的占位文案；真实版本号由 MainActivity 读 PackageInfo 填进去 -->
+    <string name="version_entry">更新说明</string>
+
+    <!--
+      ==================== ⓘ 详情文本 ====================
+      界面上所有解释性文字都放在这里，由「ⓘ」点开。
+      他说的「注释」就是指这里，不指代码里的注释 —— 改文案改的是这一块。
+      只写功能 / 用法 / 注意事项：各一段、段间空行；单段 ≤3~4 行，整段 ≤5 段。
+      功能一句带过；用法只列档位，名字已说明功能的不写，状态类就一个字「看」；
+      注意事项尽量涵盖全面，但每条都要短。
+      不解释 adb / Shizuku / Magisk 本身是什么，不打比方，不二次强调，
+      也不在这里逐条介绍设置项 —— 每一项设置旁边都有自己的 ⓘ。
+      规矩全文见用户级 ~/.workbuddy/MEMORY.md，改之前对一眼。
+    -->
+    <string name="info_sync">外接屏跟着手机一起转，两边方向一致，旋转后不会留下黑边。这是本应用的核心功能。\n\n需要 Shizuku 授权。</string>
+
+    <string name="info_boot_mode">开机时按手机当时的折叠形态决定进哪块屏；「不设置」= 交给折叠传感器。\n\n用的是和「折叠模式」同一套命令，开机那一刻 Shizuku 必须已经就绪。</string>
+    <string name="info_lock_phone">把手机自己那块屏的方向钉住：横屏锁定 / 竖屏锁定固定不动，自动旋转 = 不干预。\n\n只管手机内屏，不管外接屏 —— 外接屏始终跟随手机的实际方向。\n\n在系统下拉菜单里重新打开「自动旋转」时，这里会自动跟回自动档。</string>
+
+
+    <string name="info_fix_to_user">外接屏忽略应用自己申请的方向，只按手机的实际方向旋转。\n\n只在手机方向被锁定时才出现。某个应用在外接屏上方向不对，可以打开它试试。</string>
+
+    <string name="info_calib">外接屏画面方向不对时，逐个点 0° / 90° / 180° / 270°，看哪个角度的画面是正的，再把它填进上面的「竖屏锁到 / 横屏锁到」。\n\n「恢复系统自动旋转」= 把外接屏交还给系统自己管。</string>
+
+    <string name="info_repair">外接屏画面整体偏移、只剩一角留在屏内时，点一下立刻恢复。\n\n正常情况下用不到 —— 插屏、折叠 / 展开后应用会自己重排。</string>
+
+
+    <string name="info_res_fields">改手机内屏的分辨率，让内外屏比例一致，不出黑边或拉伸。\n\n按「宽 × 高」填，方向按外接屏竖起来之后算 —— 1920×1080 的横向面板要填 1080×1920。DPI 留空或填 0 = 不改。\n\n「内屏分辨率接管」是独立开关，打开后立即套用。</string>
+
+    <string name="info_refresh_rate">给内屏刷新率定上下界，取代系统自适应：都填 120 就是锁 120，都填 60 就是锁 60。「交回系统」删掉这两个值，重新归系统管。\n\n⚠ 超过 60Hz 的档位要识别到内屏才有效，合盖时在用的是封面屏，只有 60Hz。</string>
+
+    <string name="info_res_automatch">读外接屏面板的原生像素数，转成竖屏后自动填进上面的输入框。</string>
+
+    <string name="info_res_timing">经「立即应用」加上的分辨率是主动设置的，拔屏、重启都不会被自动清掉；经插屏询问、自动套用加上的，拔屏时还原。\n\n系统里若装着 SecondScreen 之类的同类应用，请把它改成手动模式 —— 两个来源同时写显示参数会让画面错位。</string>
+
+    <string name="info_fold">由应用接管折叠状态：折叠时内容转到封面屏，展开时回到内屏。「恢复自动」= 交还给折叠传感器。\n\n需要 Shizuku 授权。要让内外屏同时点亮、封面屏变成可操作的副屏桌面，用「双屏」选项卡里的「启动双屏模式」。</string>
+
+    <string name="info_shizuku">部分功能要 adb 或 root 权限。adb 走 Shizuku：在 Shizuku 里授权本应用并保持它运行；root 走 Magisk。</string>
+
+    <string name="info_realtime">各项屏幕参数与本应用权限的当前值。</string>
+
+    <string name="dual_about_mode">关于双屏模式</string>
+    <string name="info_onekey">切到内外屏并发，并往封面屏投一张副屏桌面（自带时钟、电量与应用图标），在封面屏上点图标就能在那块屏打开应用。\n\n系统自带的并发只点亮封面屏，上面挂的是空跑的界面。需要 Shizuku 授权。</string>
+
+
+
+    <string name="info_launcher">封面屏上的一块应用网格，点图标直接在那块屏打开它，不用先翻开手机。\n\n要到「设置 → 外屏」里把它钉到封面屏（见下一条）；点工具条上的齿轮进配置页。启动应用与卸载都走 Shizuku。</string>
+
+    <string name="info_launcher_page">外屏启动器的配置页：挑应用、排顺序、调外观，改完封面屏那块网格跟着变。\n\n点图标 = 加进或移出，左上角是收藏夹；长按图标可收藏或卸载，直接拖就是排序，拖过之后自动切成手动顺序。\n\n顶栏的图片图标设背景图，设过之后配置页与小组件都换成它；这时「不透明度」调的是图上那层黑的浓淡。图标形状只有选「圆形」才能把所有图标统一。\n\n注意：卸载应用要走 Shizuku。</string>
+    <string name="info_launcher_pin">这个组件得你自己在外屏上钉一次。\n\n在「设置 → 外屏」里把「外屏启动器」勾上（也可能写作「小组件」或「外屏应用」），合上手机，在外屏上翻到小组件那一页；没看到就点页面上的「+」，在列表里选它、拖到整页放好。\n\n钉一次即可：以后在配置页勾选或取消应用，这块网格会自己跟着变。</string>
+
+    <string name="info_profile">按屏幕身份记住每块外接显示器的参数，下次认出这块屏时自动套用。\n\n「保存本屏设置」= 存下当前这一套。匹配用的是屏幕身份而不是接口号，换个口插进来照样认得。\n\n「方向同步」「自动旋转」只做记录，接屏时不替你改这两个开关；「插屏时弹窗询问」「拔屏后自动还原」同理，都不按屏保存。</string>
+
+    <!-- ==================== Beta 功能页（下方几条 info_beta_*） ==================== -->
+    <string name="info_beta_intro">实验性质的功能都在这儿，围绕外屏，细节可能随时调整。多数要 Shizuku 权限。\n\n副屏与双屏相关的内容已移到主界面的「双屏」选项卡。</string>
+    <string name="info_beta_sub">把副屏桌面（一整页应用网格）投到封面屏上。\n\n它只投内容，不会把手机切进双屏模式，当前在用哪块屏、折叠状态都不动。副屏指的就是封面屏；要 Shizuku 在线。</string>
+    <string name="info_dex">手机接上便携屏之后，在那块屏上开一套三星 DeX 桌面，手机自己照常用。\n\n系统没给第三方留「开 DeX」的接口，这里走的是一条社区通用的路，成不成看系统；命令行的原话会显示在下面那行。\n\n得先插好便携屏；部分系统版本会以「需要 root」为由挡回来，那就只能走系统自己的入口。</string>
+    <string name="info_beta_ext">对折叠后那块封面屏做强制覆盖：分辨率、DPI 与显示方向。\n\n「应用覆盖」生效，「恢复默认」还原成面板原生值。\n\n偏离原生值太多会画面拉伸或裁切。</string>
+    <string name="info_beta_cover_res">封面屏的逻辑分辨率与 DPI。宽、高都填数字；DPI 留空表示这次不动它。\n\n应用瞬间画面会闪一下，属正常现象。</string>
+    <string name="info_beta_preset">把常用的分辨率存成预设。点一行 = 应用该组参数；长按一行 = 删除；右上角可新增或恢复出厂预设。\n\n最多保留 12 组。</string>
+    <string name="info_beta_rotate">把封面屏强制转到指定方向。\n\n「旋转 90°」按 0°→90°→180°→270° 循环，转四次回到原位；「取消固定角度」把钉住的角度放开，交还给系统自己定。</string>
+    <string name="info_cover_autorot">外屏自己的画面不会跟着手机的横竖转，这个开关让它的画面自动转过来。\n\n开：手机横过来，外屏画面跟着转，竖回去也自动回正。关：回到原来的方向。\n\n注意：靠 Shizuku 下发旋转，要无障碍服务在跑；跟内屏那个「自动旋转」互不影响。</string>
+    <string name="info_beta_cmd">把实体按键和自写指令都接到这里：选好按键与动作后，按卡片上的按钮去系统里完成接入。\n\n自定义指令在下面那张卡片里维护。</string>
+    <string name="info_beta_key">把动作绑到实体按键上：电源键走系统的「数字助手」，音量键走无障碍服务。\n\n先选要配哪个键，再点「选择动作」选动作，然后按页面的提示去系统里完成接入。音量键的动作列表里有「无」，选它即这个键不绑动作。\n\n注意：数字助手只能有一个，设了会替换掉原来那个。</string>
+    <string name="info_beta_custom">存好的指令会出现在「侧键操作」的动作列表里，可以挂到键上。\n\n注意：命令以 shell 身份运行，能做到什么取决于 Shizuku 拿到的权限。</string>
+    <string name="info_beta_external">动作里填下面的 action，参数里带 action_key。\n\n内置动作只有下面这几条；自定义指令按 custom:&lt;id&gt; 的形式填，id 显示在指令名的右边。</string>
+
+    <!-- ==================== 手势增强（v4.2） ==================== -->
+
+    <string name="info_edge_cutout">让每个应用的画面铺进摄像头那块安全区，系统就不会再压一条黑边。\n\n点一下对所有已装应用下发，几百个包要十几到二十秒，期间下面那行显示进度；改完要重新拉起应用才生效。\n\n注意：靠 Shizuku 执行，换系统版本可能失效。</string>
+
+    <string name="info_cover_recents">合盖时从外屏最下沿正中上滑，停顿一下再松手打开最近任务；直接松手回主界面，往下或横着划放弃。\n\n要无障碍服务在跑才装得上；关掉开关或无障碍断开，手势条立刻撤掉。</string>
+
+    <string name="info_cover_sidebar">松手才执行，没选中就什么也不做。面板内容勾几项就留几档，先后跟那四行一致；动画有三套，功能一样。\n\n注意：通知要单独给「通知使用权」，跟无障碍是两码事；感应带那一条的触摸会被收走，要无障碍服务在跑才装得上。</string>
+
+    <string name="info_inner_gesture">左右边缘往里划 = 返回，底部上滑 = 回主界面，上滑停一下 = 后台。\n\n注意：横屏时左下、右下两个角不响应，免得打游戏时手掌搭上来误触；竖屏整条边都生效。边缘的触摸会先被接住一下，没往里划的立刻还给下面的应用；要无障碍服务在跑才生效，配合「隐藏三键导航」用才顺。</string>
+
+    <string name="info_nav_immersive">桌面和外屏的三键条一起藏掉，屏幕底部腾出来给自定义全面屏手势让位。\n\n注意：靠 Shizuku 写系统设置；装过 Good Lock 的要先把 NavStar 里的「显示和隐藏按钮」关掉，否则会被它改回去。隐藏后从底部上划，系统仍会短暂把它唤出来。</string>
+
+    <!-- 「Beta 实验室」首次进入时那个说明弹窗上的勾选框 -->
+    <string name="beta_intro_dont_show">默认不再弹出</string>
+
+    <!-- 静态快捷方式的名字。桌面长按图标、日常程序的「应用快捷方式」里显示的就是它。 -->
+    <string name="qa_toggle_fold_short">切换折叠</string>
+    <string name="qa_toggle_fold_long">切换折叠 / 展开</string>
+    <string name="qa_cover_home_short">回外屏主页</string>
+    <string name="qa_cover_home_long">切到折叠并回到外屏主界面</string>
+    <string name="qa_cover_rotate_short">外屏旋转</string>
+    <string name="qa_cover_rotate_long">外屏顺时针旋转 90°</string>
+    <string name="qa_cover_rotate_reset_short">外屏归位</string>
+    <string name="qa_cover_rotate_reset_long">外屏恢复自动旋转</string>
+
+    <!--
+      无障碍服务：系统设置里那条开关显示的文字（v2.19.3 改）。
+      ⚠ 这里走的是 **服务自己的 android:label**（AndroidManifest 里 service@android:label），
+      无障碍列表每条只渲染这个 label、**不渲染应用名** ——
+      所以必须以「应用名」打头，否则用户在列表里按应用名根本找不到，
+      会以为列表里那个是别的 App（v2.19.2 就是这么被坑的）。
+    -->
+    <string name="a11y_service_label">Z flip便携屏扩展（Beta 实验室）</string>
+    <string name="a11y_volume_desc">开启后可用长按音量上键或音量下键执行外屏快捷动作。短按音量键不受影响；某一侧没绑动作时，长按也不受影响。</string>
+
+    <!--
+      ==================== 副屏页的名字（v4.0）====================
+
+      这些是**伪应用**的名字：只在副屏桌面（SecondaryHomeActivity）里出现，
+      系统里查不到、外屏启动器的别处（小组件 / 配置页 / 搜索页）也不会有它们
+      —— 来历见 AppRepo.pseudoItems 的注释。
+      ⚠ 副屏遥控板（v4.18 整个删除）与副屏键盘（v4.18 起不再上桌）之后，在用的只剩副屏触控板。
+      叫法统一成"副屏 xxx"，跟"副屏桌面"是一套。
+    -->
+    <string name="ext_pad_title">副屏触控板</string>
+    <string name="ext_key_title">副屏键盘</string>
+    <!--
+      投屏控制（v3.16）。名字刻意不套"副屏 xxx"那套 ——
+      "投屏"这两个字本身已经说明了"往副屏上投"，再加前缀反而绕；
+      而且四个字在网格里排得更整齐。
+    -->
+    <string name="ext_cast_title">投屏控制</string>
+
+    <!--
+      状态展示柜（v4.28）。名字用"展示柜"而不是"面板 / 监视器" ——
+      它摆出来的是一整屏读数，不是一两个数字，柜子这个说法更贴。
+    -->
+    <string name="ext_status_title">状态展示柜</string>
+
+    <!--
+      副屏播放器（v472）。名字套了"副屏 xxx"那套，跟触控板 / 桌面是一组；
+      ⚠ 刻意不叫"音乐播放器" —— 它自己不播任何东西，只是接管系统里正在放的那个。
+    -->
+    <string name="ext_player_title">副屏播放器</string>
+
+    <!-- Beta 实验室 →「副屏管理」里那组伪应用开关的 ⓘ -->
+    <string name="info_pseudo">决定哪几个伪应用出现在副屏桌面上。\n\n伪应用是我们自己的页面，不算真正的应用：只钉在副屏桌面网格的最前面，系统里、外屏启动器里、搜索页里都不会有它们。</string>
+
+    <string name="info_ext_status" formatted="false">副屏上的一块实时状态面板：CPU 占用与最近一分钟曲线、温度、内存、各簇频率、主屏刷新率，顶栏是时间与电量。\n\n不需要 Shizuku，也不用给权限；这一页不熄屏，当常亮仪表盘用。\n\n颜色是读数的意思：占用 50% / 温度 45℃ 起转黄，80% / 60℃ 起转红。</string>
+
+    <!-- 「副屏播放器」页面上的那些字 -->
+    <string name="player_idle_title">没有正在播放的音乐</string>
+    <string name="player_idle_hint">在手机上随便放一首歌，这一页就会跟着显示。</string>
+    <string name="player_need_access">需要「通知使用权」才能读到播放器。</string>
+    <string name="player_lyric_loading">歌词加载中…</string>
+    <string name="player_lyric_none">暂无歌词</string>
+    <string name="player_prev">上一曲</string>
+    <string name="player_play">播放 / 暂停</string>
+    <string name="player_next">下一曲</string>
+
+    <!-- 三个页面的顶栏与触控板底栏 -->
+    <string name="ext_close">关闭</string>
+    <string name="ext_finding">正在读取屏幕信息…</string>
+    <string name="ext_no_screen">读不到屏幕信息：确认 Shizuku 在运行且已授权</string>
+    <string name="ext_self_target">目标屏就是本页所在的屏，指令已忽略</string>
+    <string name="ext_title_none">%1$s · 读不到屏幕</string>
+    <string name="ext_title_fmt">%1$s · 内屏 %2$s</string>
+    <string name="ext_title_inner">%1$s · 内屏</string>
+    <string name="ext_title_dev">%1$s · %2$s %3$s</string>
+    <string name="dev_inner">内屏</string>
+    <string name="dev_cover">封面屏</string>
+    <string name="dev_external">外接屏</string>
+
+    <!-- 触控板 -->
+    <string name="ext_sens">灵敏度</string>
+    <string name="ext_sens_btn">%1$.1f×</string>
+    <string name="ext_pad_center_hint">盲滑即动 —— 光标在内屏上</string>
+    <string name="ext_pad_info_fmt">光标 %1$d, %2$d　·　目标屏 %3$d×%4$d　·　%5$s</string>
+    <!-- 注入走的哪条路：无障碍手势（快、跟手）还是 Shizuku + input（慢、会排队）。
+         显示在面板右下角那行，用户一看就知道"为什么这次很卡"。 -->
+    <!-- 触摸走哪条通道（v3.20）：直注 = Shizuku Binder 一发即走（首选）；
+         手势 = 无障碍 dispatchGesture（会排队）；输入 = input 命令（一条 47ms）。 -->
+    <string name="ext_path_direct">直注</string>
+    <string name="ext_path_gesture">手势</string>
+    <string name="ext_path_input">输入</string>
+    <string name="ext_pad_no_target">读不到内屏信息，先确认 Shizuku 在跑</string>
+    <string name="ext_pad_need_overlay">缺少「显示在其他应用上层」权限，光标画不到内屏上</string>
+    <string name="ext_pad_cursor_fail">光标没挂上：检查悬浮窗权限，或稍后再打开本页</string>
+    <string name="ext_grant">去授权</string>
+    <string name="ext_flash_tap">单击 %1$d, %2$d</string>
+    <string name="ext_flash_hold">长按 %1$d, %2$d</string>
+    <string name="ext_flash_drag">拖拽 %1$d,%2$d → %3$d,%4$d</string>
+    <string name="ext_flash_scroll">滚动 %1$d</string>
+    <string name="ext_flash_page_next">翻页 → 下一屏</string>
+    <string name="ext_flash_page_prev">翻页 → 上一屏</string>
+    <!-- 无障碍服务没开时，触摸只能走 input 慢路（每条要起进程、还要等目标屏的响应）。
+         这句就是给用户的那条"怎么才能变快"，点了直接跳系统无障碍设置页。 -->
+    <string name="ext_pad_need_a11y">⚠ 触摸正走慢路 · 点这里开无障碍服务（或先把 Shizuku 连上），拖动才跟手</string>
+    <string name="ext_pad_a11y_toast">在列表里找到「Z flip便携屏扩展」并打开开关即可；Shizuku 也顺手检查一下</string>
+    <string name="ext_page_prev">◀ 翻页</string>
+    <string name="ext_page_next">翻页 ▶</string>
+    <string name="ext_flash_sens">灵敏度 %1$.1f×</string>
+    <string name="ext_click">单击</string>
+    <string name="ext_hold">长按</string>
+    <string name="ext_back">返回</string>
+    <string name="ext_home">主页</string>
+    <!-- 触控板底部的操作提示（一行，详细解释在 ⓘ 里） -->
+    <string name="ext_pad_hint">滑＝移光标 · 轻点＝单击 · 按住＝长按 · 按住拖＝拖拽 · 双指上下＝滚动 · 双指左右＝翻页</string>
+
+    <!--
+      ==================== 投屏控制（v3.16）====================
+
+      这个页子把内屏画面投到本屏，触摸直接换算成内屏坐标注进去。
+      顶栏/底栏文案跟触控板一套（ext_close / ext_back / ext_home 直接复用）。
+    -->
+    <string name="cast_start">开始投屏</string>
+    <!-- 全屏（v4.31）：把整块屏让给画面。单向的 —— 全屏之后控件全收起，退出来靠那块屏的返回键 -->
+    <string name="cast_full">全屏</string>
+    <string name="cast_exit_full">退出全屏</string>
+    <!--
+      两个勾选项（v3.20）。写在按钮旁边那行，不塞进顶栏（封面屏顶栏已经很挤）。
+      「重设」= 投屏前先把内屏的宽高比改成跟画面框一样，画面就铺满了不留黑边；
+      「放大」= 画面里可以双指捏合放大，放大了点得更准（触控板不需要，所以只在投屏页）。
+    -->
+    <string name="cast_opt_resize">内屏分辨率重设</string>
+    <string name="cast_opt_zoom">允许放大</string>
+    <!-- 已经投着的时候才去勾「重设」：尺寸在建虚拟显示时就定了，这一趟改不了 -->
+    <string name="cast_opt_resize_late">「内屏分辨率重设」要下次开始投屏时才生效（画面尺寸在投屏那一刻就定下了）</string>
+    <string name="cast_stop">停止</string>
+    <string name="cast_idle">点「开始投屏」，内屏画面就会出现在这里</string>
+    <string name="cast_preparing">正在准备…</string>
+    <string name="cast_state_idle">未投屏</string>
+    <!-- 状态行：内屏尺寸 → 投到本屏，后面跟一句"注入走的哪条路" -->
+    <string name="cast_state_fmt">内屏 %1$s · %2$s</string>
+    <!-- 注入通道（v3.19）：直注 = Shizuku Binder 一发即走；输入 = input 命令，一条 47ms -->
+    <string name="cast_path_direct">直注</string>
+    <string name="cast_path_input">输入</string>
+    <string name="cast_no_target">读不到内屏信息，先确认 Shizuku 在跑</string>
+    <string name="cast_no_shizuku">需要先授权 Shizuku：拿不到内屏的尺寸，点了会偏</string>
+    <!--
+      没有 Shizuku 时的实话（v3.16）。
+      系统那个授权弹窗在副屏上点不到（按内屏尺寸布局，按钮落在屏外），
+      所以没有 Shizuku 就等于"在副屏上投不了" —— 与其让用户卡在「正在准备…」，
+      不如直接告诉他去哪块屏上点。
+    -->
+    <string name="cast_no_shizuku_dialog">没接通 Shizuku，只能走系统授权弹窗 —— 那个弹窗在副屏上点不到，请到内屏上再点一次「开始投屏」</string>
+    <string name="cast_denied">没拿到投屏授权（授权被取消或拒绝）</string>
+    <string name="cast_stopped">投屏已停止</string>
+    <string name="cast_fail">投屏没起来：%1$s</string>
+    <string name="cast_tap_target_off">⚠ 内屏熄着，投出来是黑屏 —— 先展开手机</string>
+    <string name="cast_hint">画面里直接点 / 拖 · 勾了「允许放大」可双指捏合缩放</string>
+    <string name="cast_recent">后台</string>
+    <!-- ⓘ 正文：功能 / 用法 / 注意事项 -->
+    <string name="cast_info">合盖或只用这块屏时也能操作手机内屏：画面投到本屏，直接点、直接拖。\n\n接通 Shizuku 后点「开始投屏」。\n「全屏」把画面铺满本屏，勾了「内屏分辨率重设」才真铺满。全屏时界面不留控件，退出就从画面最顶上往下拉。\n\n注意：\n· 投屏授权每次都要重新给；没接通 Shizuku 时弹窗在副屏点不到，得去内屏点。\n· 内屏熄着（比如合盖）时投出来是全黑的。\n· 本页放到内屏上会照到自己，会自动搬到另一块屏。\n· 「内屏分辨率重设」临时改内屏分辨率，停止投屏自动还原；强杀本应用可能来不及，去主界面「内屏分辨率」栏点一下还原。\n· 放大后单指仍精确；出现第二根手指时这一下不生效，不会误点。\n· 全屏期间外屏的侧滑栏与手势条暂时收起，退出全屏自动回来。</string>
+
+    <!-- 副屏键盘 -->
+    <string name="ext_key_state_idle">先在内屏点一下要输入的地方，再回来打字</string>
+    <string name="ext_key_state_fmt">内屏 %1$s</string>
+    <string name="ext_key_hint">在这里输入要送过去的文字</string>
+    <string name="ext_send">发送</string>
+    <string name="ext_enter">回车</string>
+    <string name="ext_backspace">退格</string>
+    <string name="ext_clear">清空</string>
+    <string name="ext_space">空格</string>
+    <string name="ext_tab">Tab</string>
+    <string name="ext_esc">Esc</string>
+    <string name="ext_key_mode_auto">方式：自动</string>
+    <string name="ext_key_mode_text">方式：直接键入</string>
+    <string name="ext_key_mode_clip">方式：剪贴板</string>
+
+
+    <string name="info_ext_pad">把封面屏当笔记本触控板用，光标显示在目标屏上；面板上不看图，手指盲滑就行。\n\n轻点 = 单击，按住 0.55 秒 = 长按，按住再滑 = 拖拽，双指上下滑 = 滚动，双指左右滑 = 翻页。\n\n注意：注入优先走 Shizuku，不通时自动改走别的路。</string>
+    <string name="info_ext_pad_overlay">光标是挂在内屏上的一层悬浮窗，需要「显示在其他应用上层」权限。\n\n路径：系统设置 → 应用 → 本应用 → 显示在其他应用上层（有的系统放在「特殊应用权限」里）。\n\n不开也能进这页，只是光标不会出现。</string>
+    <string name="info_ext_key">在封面屏上打字，把文字送进内屏那个应用的光标处。\n\n先在内屏点一下要输入的位置，再回来打字、按「发送」。中文与表情走剪贴板粘贴，纯英文数字直接键入。\n\n注意：内屏没有焦点的输入框收不到文字；「发送」发的是输入框里的全部内容，发完清空。</string>
+
+    <string name="repair_title">修复界面</string>
+
+    <string name="info_adb_wifi">外屏下连了没登记过的 Wi-Fi 时，用它打开系统的无线调试，好让 Shizuku 能启动起来。这个按钮只开不关，需要无障碍权限。\n\n注意：第一次打开当前网络时会自动展开内屏、替你点掉系统确认框再折回；同一个网络第二次就直接打开。代点只在这一个动作里生效。</string>
+    <string name="info_qa_cast">一步做完「启动双屏模式 → 打开投屏控制 → 全屏 → 开始投屏」。\n\n注意：它会切双屏模式，手机内屏那边的落点跟着变；投屏授权靠 Shizuku 预先办掉，没接通就只能去内屏点。</string>
+
+    <string name="info_repair_app">让应用在外屏上以原生尺寸显示：字体正常、弹窗落在屏内也点得到。\n\n不加进去的应用照样能在外屏打开，但会缩放显示：字忽大忽小、有的弹窗画到屏幕外点不到。</string>
+
+    <string name="info_repair_list">打开 = 这个应用在外屏上以原生尺寸显示。\n\n一键修复 = 全部打开。一键重置 = 还原到本应用第一次改动之前的名单，从没改过时没法重置。\n\n注意：改的是三星那份名单（设置 → 外屏 → 在外屏运行的应用），不是本应用自己的设置。</string>
+
+</resources>

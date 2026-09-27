@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「免 DeX 桌面模式」按钮 · 已关闭时的底：灰底圆角（同 pair_btn_on 的绿底是一对）。
+  绿=已开 / 灰=已关，沿用本应用其它状态按钮（如「内屏分辨率接管」）的色语。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF757575" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</ripple>

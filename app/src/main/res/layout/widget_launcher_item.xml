@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  外屏启动器里的一格：图标 + 名字 —— v2.18.9 起**没有底框**了。
+
+  ── 为什么去掉背景 ────────────────────────────────────────────────
+  v2.18.8 这里挂的是 launcher_item_bg（半透明白圆角块），结果就是
+  每个图标都被塞进"启动器里的小框"里，一屏 16 个框 —— 用户的原话是
+  "框中框"，跟封面屏桌面的观感比起来脏。现在格子本身透明，
+  只靠图标和文字排布，跟副屏桌面（activity_secondary_home + item_app_grid）一个路子。
+
+  ── 尺寸怎么来的 ──────────────────────────────────────────────────
+  · itemIcon 用 wrap_content —— 实际显示多大由塞进来的位图决定，所以"图标大小"
+    和"图标形状"这两个设置才能生效（AppFactory 按比例缩位图、再按形状裁一刀）。
+  · 上下的 padding 是 AppFactory 用 setViewPadding 按"行距"设置动态设的
+    （GridView.verticalSpacing 在 RemoteViews 里改不了）。这里写的值只是占位。
+  · 点下去仍由 itemRoot 兜底：AppFactory 对它 setOnClickFillInIntent 填包名。
+
+  ── 名字放开到两行（v2.19.1）───────────────────────────────────────
+  用户反馈"好多应用名称显示不全"。字号在 AppFactory 里收小一档之后，
+  这里再放开到 maxLines=2 —— 收小之后还装不下的，自动折到第二行，
+  不再一上来就吃省略号。
+  ⚠ ellipsize 留着：两行都塞不下时还得有省略号收尾，不然会溢出去。
+  ⚠ 下面那个 textSize="10sp" 只是**给布局预览用的占位值** ——
+    真正字号每格都由 AppFactory.setTextViewTextSize 按"图标大小"档写进去。
+    当前档位表见 CoverLauncherService.LABEL_SP（8/9/10sp，v3.0 起）。
+
+  ── ⚠⚠ 名字区必须固定两行高（v3.0 修的就是这个）────────────────────
+  只给 maxLines=2 是不够的：那样**格子高度跟着名字长短变**
+  （1 行 ≈29px、2 行 ≈54~60px，中文行还比 ASCII 行高一档），
+  而 GridView 排下一行时的起点是 **本行最后一格的下边界**
+  （AOSP GridView.fillDown：`nextTop = mReferenceView.getBottom()`）
+  —— 于是每一行的行距由"该行第 7 格的名字长不长"决定，
+  实测行距出现 151 / 154 / 176 / 182 四种值，看着就是参差。
+
+  ⇒ minLines=2：名字区恒定两行高，所有格子高度一致 ⇒ 行距均匀。
+    两行装不下的仍走 maxLines + ellipsize 收省略号。
+  ⚠ 改这里等于改所有格子的高度，别把 minLines 去掉。
+
+  ── ⚠⚠ minHeight 为什么还得补一刀（v3.0 二修）────────────────────
+  minLines=2 只是"至少两行"，它给的底线是 2 × Paint 的行高（≈1.27×字号）；
+  而**两行中文**实际排版出来是 2 × 1.41×字号 —— 比底线高。
+  实测（封面屏 density 2.125，10sp）：短名 54px / 两行 ASCII 57px / 两行中文 60px。
+  也就是说 minLines 只把短名抬到 54，中文两行仍是 60 ⇒ 格高仍有 54/57/60 三档。
+  这次测量恰好每行都碰上一个 60 的格子，行距才看着齐 —— 一旦某行全是短名，
+  行距立刻又差 6px。属于"碰巧对了"，不能算修好。
+
+  ⇒ 再压一条绝对下限：minHeight。取值 = **2.82 × 名字字号最大档**。
+    两行中文实测 ≈ 2.82 × 字号(sp)（60px @10sp / density 2.125 折 28.2sp）。
+
+  ── v3.0 三修：字和行距一起收（用户："字体还是稍微有点大，行距也高"）──
+  实测一格的构成本来是（封面屏，7 列，行距设置=最紧）：
+
+      166 = 上下边距 6+6  +  图标 77  +  间隙 9(4dp)  +  名字区 68(32sp)
+
+  名字区 68px 比图标 77px 只差一点点 —— 一格里最占地方的其实不是图标而是字。
+  所以这次三条一起动，全都只影响**名字那一块**：
+    · 字号 9/10/11sp → **8/9/10sp**（CoverLauncherService.LABEL_SP）；
+    · minHeight 32sp → **29sp**（= 2.82 × 新的最大档 10sp，向下取整只为省 1px）；
+    · marginTop 4dp → **2dp**（图标与名字贴紧一点）。
+  加上行距档位本身也整体下调（LauncherPrefs.rowPadDp），最终一行 ≈ 149px。
+
+  ⚠⚠ 这个名字区的下限和字号是**一根绳上的两头**：
+    改 CoverLauncherService.LABEL_SP 的最大值，必须同步改这里的 minHeight，
+    28 偏小、29 刚好、30 以上就白留一圈空白。
+    （下限只能用 sp 不能用 dp：字号是 sp，系统字体放大时文字会变大，
+      dp 写的下限不会跟着走，放大后又会漏出来。）
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/itemRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <ImageView
+        android:id="@+id/itemIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/itemLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:minHeight="29sp"
+        android:minLines="2"
+        android:shadowColor="#B3000000"
+        android:shadowDx="0"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:textColor="#E8EDF5"
+        android:textSize="10sp" />
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  小组件里的「折叠/展开切换」按钮底：蓝色圆角。
+  理由同 widget_btn_dual.xml（不用 <Button>，用 TextView + 背景）。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF1565C0" />
+    <corners android:radius="12dp" />
+</shape>

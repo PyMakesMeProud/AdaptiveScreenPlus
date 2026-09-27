@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」小组件底板 —— 不透明度 50%。
+
+  ⚠ 四份（0 / 10 / 30 / 50）颜色一致、只有 alpha 不同，改色要一起改；
+    完整说明见 launcher_widget_bg_30.xml。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#80101014" />
+    <corners android:radius="20dp" />
+</shape>

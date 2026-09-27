@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」的搜索页 —— 投到封面屏上，边打字边筛，点一下直接在本屏启动。
+
+  这页是小组件做不到的那半：RemoteViews 里放不了 EditText，
+  所以"搜索"只能是另一个真 Activity（跟配置页一个道理）。
+
+  底色跟副屏桌面（activity_secondary_home）对齐用 #0E1116 —— 封面屏小、
+  又要长时间亮着，深色统一了才不显得是两个来源拼起来的。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0E1116"
+    android:orientation="vertical"
+    android:paddingLeft="12dp"
+    android:paddingTop="10dp"
+    android:paddingRight="12dp"
+    android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etSearchInput"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:background="@drawable/launcher_search_bg"
+            android:hint="@string/launcher_search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:textColor="#FFFFFFFF"
+            android:textColorHint="#80FFFFFF"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/btnSearchClose"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="6dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_close"
+            android:padding="8dp"
+            android:src="@drawable/ic_launcher_close" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSearchState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/launcher_search_idle"
+        android:textColor="#6C7889"
+        android:textSize="11sp" />
+
+    <GridView
+        android:id="@+id/gvSearch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_weight="1"
+        android:numColumns="1"
+        android:scrollbars="vertical"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="0dp" />
+</LinearLayout>

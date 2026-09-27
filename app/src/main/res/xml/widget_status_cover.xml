@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「手机状态」：封面屏（外屏）专用的一份声明 —— 2×2（150×133dp）。
+
+  三条缺一不可（跟 widget_custom_cover.xml 同一套，理由见 widget_panel_cover.xml）：
+  · widgetCategory 只写 keyguard（**不带 home_screen**）；
+  · 挂 com.samsung.android.appwidget.provider 这条私有 meta-data；
+  · 尺寸照三星自家槽位：外屏 2×2 = 150×133dp、targetCell 2×2。
+    ⚠ 改小（试过 150×60）组件会**当场从外屏列表消失**，不是"没效果"。
+    ⚠ 一开始写成 4×2（312×133dp），用户实测内容被摊扁、很难看 ⇒ 改回 2×2。
+
+  ⚠ updatePeriodMillis 写 0：这一页要看实时电量 / 温度，而系统只认 30 分钟起步，
+    所以定时刷新改由 StatusCoverWidgetProvider 自己用 AlarmManager 排（一分钟一次）。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_status_cover_desc"
+    android:initialKeyguardLayout="@layout/widget_status_2x2"
+    android:initialLayout="@layout/widget_status_2x2"
+    android:minHeight="133dp"
+    android:minResizeHeight="133dp"
+    android:minResizeWidth="150dp"
+    android:minWidth="150dp"
+    android:previewLayout="@layout/widget_status_2x2"
+    android:resizeMode="none"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="keyguard" />

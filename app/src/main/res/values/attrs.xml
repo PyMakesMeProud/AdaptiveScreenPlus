@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  三星私有的小组件属性（封面屏 / Flex Window 用）。
+
+  这里声明的 attr **值不重要，重要的是属性名**：三星的 AOD 服务在解析
+  appwidget-provider XML 时，是拿 getAttributeName() 的**字符串**去自己表里查的
+  （反编译 com.samsung.android.app.aodservice 的 aod.YP.<init> 可见它逐个比对
+   widgetStyle / widgetSize / monotoneWidgetSize / lockWidgetSize / previewSize …）。
+  所以第三方应用只要在自己包里声明同名的 attr，就能被它读到 ——
+  「阿田自用」(com.tianweixing.atianwidget) 用的就是这个办法。
+-->
+<resources>
+
+    <!-- 支持的尺寸掩码：1=1×1   2=2×1   4=1×2   8=2×2   16=4×2 -->
+    <attr name="widgetSize" format="integer" />
+
+    <!-- 1=卡片/面板型   2=图标型   3=进度型 -->
+    <attr name="widgetStyle" format="integer" />
+
+</resources>

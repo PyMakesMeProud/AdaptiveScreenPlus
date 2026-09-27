@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  副屏页上的**主操作**按钮。
+  「发送」「确定」这类"点下去就真的动手"的键用这个绿底，跟次按钮（ext_btn）分开，
+  一排里一眼能认出哪个是真正要按的。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#CC34C759" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#9934C759" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</selector>

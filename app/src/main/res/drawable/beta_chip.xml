@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  主界面右上角「Beta 功能」入口。
+  做成实心蓝底白字，比紧挨着的版本胶囊更抓眼 —— 它是个入口，不是一个状态标签。
+  形状与 version_chip 保持同一套圆角半径，摆在一行里不会显得大小不一。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF1565C0" />
+    <corners android:radius="12dp" />
+</shape>

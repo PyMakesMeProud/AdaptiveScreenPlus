@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  状态展示柜（伪应用）—— 副屏上的一块实时监控面板。
+
+  整页就是一块自绘的仪表盘（顶栏的时间/电量/两个按钮也画在里面），
+  布局文件只负责把它铺满。排版比例全部写在 StatusBoardView 的基准坐标里，
+  对照图 scripts/mock_status.py。
+
+  底色跟别的伪应用一致（#0B0F14），免得在副屏上换页时一闪。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0B0F14">
+
+    <com.wb.extrotator.StatusBoardView
+        android:id="@+id/statusBoard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

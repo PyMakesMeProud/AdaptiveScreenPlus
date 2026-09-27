@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用按钮式开关的底（v4.17）。这只是「关」时的样子：选中时
+  MainActivity.applyPseudoLook 会换成同圆角、填图标主色的 GradientDrawable。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners android:radius="8dp" />
+    <solid android:color="#1F888888" />
+</shape>

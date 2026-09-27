@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beta 页子选项卡的选中态。
+  底色沿用主界面选项卡的绿（#2E7D32），让两个界面的"当前在哪一页"是同一种读法；
+  但它坐在黑色背景上，所以未选中态不能再是主界面那种淡黑 —— 那在黑底上等于隐身。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#2E7D32" />
+    <corners android:radius="8dp" />
+</shape>

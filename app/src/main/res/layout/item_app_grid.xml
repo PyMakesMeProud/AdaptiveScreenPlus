@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  副屏桌面（activity_secondary_home 的 gvApps）里的一格：图标 + 名字。
+
+  ── ⚠ 名字区固定两行高（v3.0，同 widget_launcher_item.xml）──────────
+  只写 maxLines=2 的话，格子高度会跟着名字长短变（1 行 / 2 行两档），
+  而 GridView 排下一行的起点是**本行最后一格的下边界**
+  （AOSP GridView.fillDown：nextTop = mReferenceView.getBottom()），
+  于是行距由"这一行里最长的那个名字"决定，逐行参差。
+  ⇒ minLines=2 把名字区钉成恒定两行高，所有格子等高 ⇒ 行距均匀。
+  ⚠ 只有 minLines 还不够 —— 它给的底线是 2×Paint 行高，而两行中文排出来更高，
+    格高仍会分档。真正压住高度的是 minHeight=32sp（用 sp，跟着字号一起缩放）。
+    完整推导写在 widget_launcher_item.xml 的注释里，两份 item 是同一个道理，
+    改一个别忘了另一个。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
+
+    <ImageView
+        android:id="@+id/ivGridIcon"
+        android:layout_width="44dp"
+        android:layout_height="44dp" />
+
+    <TextView
+        android:id="@+id/tvGridName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:minHeight="32sp"
+        android:minLines="2"
+        android:textColor="#E6EAF2"
+        android:textSize="10sp" />
+</LinearLayout>

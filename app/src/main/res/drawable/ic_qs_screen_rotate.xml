@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  快捷开关图标：外屏自动旋转。
+  用材料设计里那张「屏幕旋转」（一块斜着的屏 + 两头各一个拐弯箭头），
+  跟同一排里的「自动旋转」（一圈圆箭头）一眼能分开 —— 两个图标必须不一样，
+  这一排的小方块上没有文字，图标是唯一的区分。
+  颜色写死白，实际颜色由界面 setColorFilter 决定。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M16.48,2.52c3.27,1.55 5.61,4.72 5.97,8.48h1.5C23.44,4.84 18.29,0 12,0l-0.66,0.03 3.81,3.81 1.33,-1.32z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10.23,1.75c-0.59,-0.59 -1.54,-0.59 -2.12,0L1.75,8.11c-0.59,0.59 -0.59,1.54 0,2.12l12.02,12.02c0.59,0.59 1.54,0.59 2.12,0l6.36,-6.36c0.59,-0.59 0.59,-1.54 0,-2.12L10.23,1.75zM14.83,21.19L2.81,9.17l6.36,-6.36 12.02,12.02 -6.36,6.36z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.27,21.48C4.25,19.94 1.91,16.76 1.55,13H0.05C0.56,19.16 5.71,24 12,24l0.66,-0.03 -3.81,-3.81 -1.33,1.32z" />
+</vector>

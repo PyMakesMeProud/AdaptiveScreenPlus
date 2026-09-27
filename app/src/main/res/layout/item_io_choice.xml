@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「清单与顺序」弹窗里的一行：上面一行动作名，下面一行小字说明它会干什么。
+
+  为什么要那行小字：这两个动作都是"一按就改掉整份配置"的，
+  尤其"导入系统外屏清单"会覆盖当前勾选 —— 只写四个字"导入清单"，
+  用户按下去之前没法知道代价。两行也就多 14dp 高，值得。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="10dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/ioTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFEDEDF0"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/ioSub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textColor="#8C97A8"
+        android:textSize="11sp" />
+</LinearLayout>

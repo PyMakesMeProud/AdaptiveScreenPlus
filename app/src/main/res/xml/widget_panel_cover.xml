@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「双屏快捷面板（外屏）」：封面屏专用的一份声明。
+
+  ── 为什么单独拆一份，而不是和 widget_panel_info.xml 共用 ──────────────
+  三星自己在外屏做 2×2 的办法是**内外屏各一个 receiver**：
+  · 外屏那个只声明 `widgetCategory="keyguard"`（**不带 home_screen**）；
+  · 内屏那个只声明 `widgetCategory="home_screen"`。
+  实证（`dumpsys appwidget`，Z Flip5 / One UI 8 / 2026-09）：
+  · com.sec.android.daemonapp 的 WeatherCoverMultiWidgetSimple
+      min = 150.0×133.0 dp，resizeMode=0，widgetCategory=**2**
+  · com.sec.android.app.clockpackage 的 AlarmMultiCoverWidgetProvider2X2
+      min = 150.0×133.0 dp，resizeMode=0，widgetCategory=**8192**
+  两家都是 150×133。而本应用 v2.5~v2.9 一直把两边混在一个 receiver 里、写成
+  `home_screen|keyguard`(3) —— 外屏托盘始终列不出来（v2.8 / v2.9 用户实测）。
+
+  ── 尺寸为什么是 150×133（2×2）—— v2.11 的 2×1 试验已证伪 ───────────
+  外屏的格子几何（Samsung 自家 res 里的尺寸资源，`aapt2 dump resources`）：
+    · common_cover_multi_widget_width_2x2  = 150dp   height_2x2 = 133dp   （时钟）
+    · common_cover_multi_widget_width_4x2  = 312dp   height_4x2 = 133dp   （时钟）
+    · widget_cover_multi_simple_minWidth   = 150dp   minHeight  = 133dp   （天气）
+    · widget_cover_multi_hourly_minWidth   = 312dp   minHeight  = 133dp   （天气）
+  反推：列 cell = 69dp、间距 = 12dp（4×69+3×12 = 312 ✓，2×69+12 = 150 ✓），
+  行同理 → 2×60.5+12 = 133 ⇒ 外屏是 4 列 × 4 行、一行 ≈ 60.5dp，
+  照这个算下来「2×1」就是 150×60dp 那一格。
+
+  ⚠️ 但 v2.11 真按 150×60 + targetCell 2×1 声明下去，**组件当场从外屏列表里消失**
+  （用户实测）。结论：宿主只认它自己那套槽位，1 行高的组件它根本不收 ——
+  「改小的声明」不只是没效果，是会直接把它踢出列表。
+  v2.12 起回到 150×133 / targetCell 2×2（也就是 v2.10 实测能出现在列表里的那一份）。
+
+  ⇒ v2.13：尺寸动不了，那就把这 2×2 **用满**。布局换成 widget_panel_2x2.xml
+     （四格铺满、四个按钮：折叠/展开 · 双屏模式 · 方向同步 · 锁横屏），
+     不再复用内屏那条 56dp 的窄条 —— 它摆在 133dp 高的格子里上下都是空的。
+
+  ⚠️ 尺寸、keyguard 位、三星私有 meta-data 这三样里，后两样一个都不能碰 ——
+  它们是「能不能出现在外屏列表里」的开关（v2.8/v2.9 的教训）；
+  而尺寸是唯一会反向踩雷的一项：**改小同样会让它消失**。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_panel_cover_desc"
+    android:initialKeyguardLayout="@layout/widget_panel_2x2"
+    android:initialLayout="@layout/widget_panel_2x2"
+    android:minHeight="133dp"
+    android:minResizeHeight="133dp"
+    android:minResizeWidth="150dp"
+    android:minWidth="150dp"
+    android:previewLayout="@layout/widget_panel_2x2"
+    android:resizeMode="none"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="keyguard" />

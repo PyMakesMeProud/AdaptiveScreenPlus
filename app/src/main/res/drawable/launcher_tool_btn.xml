@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  工具条上图标按钮的底：平时完全透明，按下时浮出一个淡淡的圆。
+  刻意不用常驻的圆形底 —— 那正是"框中框"的来源，三个圆饼排在顶上比一个更显眼。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <solid android:color="#26FFFFFF" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#00FFFFFF" />
+        </shape>
+    </item>
+</selector>

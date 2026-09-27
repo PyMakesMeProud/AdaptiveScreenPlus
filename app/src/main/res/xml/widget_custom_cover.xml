@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「自定义操作」：封面屏（外屏）专用的一份声明 —— 2×2，就是三星自家时钟 / 天气那一格。
+
+  三条缺一不可（跟 widget_panel_cover.xml 同一套，理由见那份的注释）：
+  · widgetCategory 只写 keyguard（**不带 home_screen**）；
+  · 挂 com.samsung.android.appwidget.provider 这条私有 meta-data；
+  · 尺寸照三星自家槽位：外屏 2×2 = 150×133dp、targetCell 2×2。
+    ⚠ 改小（试过 150×60）组件会**当场从外屏列表消失**，不是"没效果"。
+
+  ⚠ 刻意**不**写 android:configure —— 用户要的是"加进来先是空白，点它才设置"，
+    而 configure 是添加流程的一部分（取消就加不成），正好相反。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_custom_cover_desc"
+    android:initialKeyguardLayout="@layout/widget_custom_2x2"
+    android:initialLayout="@layout/widget_custom_2x2"
+    android:minHeight="133dp"
+    android:minResizeHeight="133dp"
+    android:minResizeWidth="150dp"
+    android:minWidth="150dp"
+    android:previewLayout="@layout/widget_custom_2x2"
+    android:resizeMode="none"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="keyguard" />

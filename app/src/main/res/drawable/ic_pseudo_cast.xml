@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用「投屏控制」的图标（v3.16）。
+
+  图形意思：左边的竖屏（内屏）→ 箭头 → 右边的横屏（副屏），
+  也就是这个页子在干的事：把内屏的画面投到副屏上。
+  底色挑了紫色 #8E6BE8，跟另外三个（蓝 2F7DFF / 绿 23B98C / 橙 F0983A）分得开。
+
+  字形全部收在圆的安全区内（圆 r=11、圆心 12,12；最远的角在 r≈9.2），
+  理由同 ic_pseudo_touchpad.xml：启动器会把图标裁进圆形。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#8E6BE8"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <!-- 竖屏：内屏 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6.6,5.4 h3.0 a1,1 0 0 1 1,1 v11.2 a1,1 0 0 1 -1,1 h-3.0 a1,1 0 0 1 -1,-1 v-11.2 a1,1 0 0 1 1,-1 z" />
+    <!-- 横屏：副屏 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M14.9,8.4 h3.1 a1,1 0 0 1 1,1 v5.2 a1,1 0 0 1 -1,1 h-3.1 a1,1 0 0 1 -1,-1 v-5.2 a1,1 0 0 1 1,-1 z" />
+    <!-- 中间的箭头（用底色） -->
+    <path
+        android:fillColor="#8E6BE8"
+        android:pathData="M11.1,11.4 h1.0 v-1.1 l1.6,1.7 l-1.6,1.7 v-1.1 h-1.0 z" />
+</vector>

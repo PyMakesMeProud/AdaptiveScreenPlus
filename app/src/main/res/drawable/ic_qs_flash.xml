@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 快捷开关图标：手电筒。头一个方块、身一根圆底柱子，两段分开画。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,2 h10 v4.6 h-10 z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.2,7.6 h5.6 v12 a2.8,2.8 0 0 1 -5.6,0 z" />
+</vector>

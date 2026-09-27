@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」的完整界面 —— 投到封面屏上用的配置页。
+  跟小组件不同，这里是真 Activity 的真布局，没有 RemoteViews 那些限制。
+
+  ── 排布（v4.14 再排一次）──────────────────────────────────────────
+      顶栏      [★] 外屏启动器 ⓘ 已选 N     [≋] [⇅] [图] [✕]
+      ─────────────  1dp 淡线（跟小组件工具条下面那条线对齐）
+      搜索框    实时过滤
+      网格      占满剩下的高度（外面套一层 FrameLayout 给拖拽浮层用）
+      底栏      [提示]  [导入] [清空] [完成]
+
+  ── 顶栏为什么改成现在这样 ──────────────────────────────────────────
+  ① 「编辑模式」开关（那个鼠标指针）v4.14 <b>撤掉了</b>：在完整界面上直接打开应用
+     没什么必要，点图标从此恒定是"加进 / 移出启动器"。那个位置让给「收藏夹」——
+     拨一下只显示收藏过的应用（跟小组件顶栏那个星星是同一个开关）。
+  ② 加了一条 1dp 分割线。之前四个按钮浮在同一片底色上，跟网格糊成一块；
+     有了线，工具区和内容区才分得开 —— 小组件那边也是这么做的，两边看起来才像一套。
+  ③ 四个图标统一 34dp、统一 launcher_tool_btn（平时全透明、按下才有淡圆），
+     排布用等间距。之前只有三个、间距靠 margin 手调，加了第四个之后必须改成统一节奏。
+  ④ 又加了「背景图片」（v4.14），排在排序和关闭中间 —— 前面那几个的位置一律不动，
+     用户已经认熟了原来的排法，新东西插队比整排重来一遍好。
+
+  ── 网格为什么套了一层 FrameLayout（gridHost）───────────────────────
+  拖拽时"跟着手指走"的那个浮层没地方放：GridView 自己会被滚动裁剪。
+  最省事又不出错的做法是在它外面套一层 FrameLayout，浮层用 margin 绝对定位加在这层里，
+  坐标 = GridView.getLeft() + child.getLeft()。见 DragGrid 的注释。
+
+  底色 #0E1116 跟副屏桌面（activity_secondary_home）对齐 —— 见那份的注释。
+  设过背景图之后，这层底色会被「图片 + 半透明黑」整体顶掉（代码在 applyBackdrop），
+  那层黑的厚度就是外观条里的「不透明度」。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pickRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0E1116"
+    android:orientation="vertical"
+    android:paddingLeft="12dp"
+    android:paddingTop="6dp"
+    android:paddingRight="12dp"
+    android:paddingBottom="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btnPickFav"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_fav"
+            android:padding="7dp"
+            android:src="@drawable/ic_launcher_star" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/launcher_title"
+            android:textColor="#FFFFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!--
+          标题右边那个「ⓘ」：整页的操作说明（怎么显隐 / 怎么排序 / 排序规则 / 能调什么）。
+          用的是主界面同一套 InfoIcon 样式（深色底上换成浅色字）。
+          ⚠ id 以 i 打头是这个项目的约定：一眼能认出"这是个 ⓘ"。
+        -->
+        <TextView
+            android:id="@+id/iPickTitle"
+            style="@style/BetaInfoIcon" />
+
+        <TextView
+            android:id="@+id/tvPickCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#7ED9A0"
+            android:textSize="11sp" />
+
+        <ImageView
+            android:id="@+id/btnPickLook"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_look"
+            android:padding="7dp"
+            android:src="@drawable/ic_launcher_tune" />
+
+        <ImageView
+            android:id="@+id/btnPickSort"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_sort"
+            android:padding="7dp"
+            android:src="@drawable/ic_launcher_sort" />
+
+        <ImageView
+            android:id="@+id/btnPickPhoto"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_photo"
+            android:padding="7dp"
+            android:src="@drawable/ic_launcher_photo" />
+
+        <ImageView
+            android:id="@+id/btnPickClose"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/launcher_tool_btn"
+            android:contentDescription="@string/launcher_close"
+            android:padding="9dp"
+            android:src="@drawable/ic_launcher_close" />
+    </LinearLayout>
+
+    <!-- 分隔线（跟小组件工具条下面那条粗细、颜色一致） -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#12FFFFFF"
+        android:contentDescription="@null" />
+
+    <EditText
+        android:id="@+id/etPickSearch"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/launcher_search_bg"
+        android:hint="@string/launcher_search_hint"
+        android:imeOptions="actionSearch"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:textColor="#FFFFFFFF"
+        android:textColorHint="#80FFFFFF"
+        android:textSize="13sp" />
+
+    <FrameLayout
+        android:id="@+id/gridHost"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_weight="1">
+
+        <!--
+          ⚠ listSelector 必须显式设成透明：GridView 默认那个 selector 会在
+             "当前选中项"上画一块浅色圆角底 —— 而选中项默认就是第 0 项，
+             于是第一格永远顶着一块多余的框（拖拽时它还会跟着跑，
+             看起来像"拖动目标高亮"，其实不是）。v2.19.0 第一轮实测截图上发现的。
+        -->
+        <com.wb.extrotator.DragGrid
+            android:id="@+id/gvPick"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:horizontalSpacing="2dp"
+            android:listSelector="@android:color/transparent"
+            android:numColumns="4"
+            android:scrollbars="vertical"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="0dp" />
+    </FrameLayout>
+
+    <!--
+      外观条（v2.19.0 改成页内横条，不再用弹窗）。
+
+      为什么不做弹窗：用户的诉求是"调图标大小 / 行距的时候要能当场看到变化"，
+      而弹窗会把网格整个盖住 —— 改完只能关掉弹窗再看，那不叫实时反馈。
+      做成页内这条，网格就在它上面，改一格当场变一格，眼睛不用离开。
+
+      默认 gone；点顶栏那个「外观」图标展开，图标同时变绿。
+      三行六个组：一排几个 / 图标大小 ｜ 行距 / 应用名称 ｜ 图标形状 / 背景
+      （第三行是 v2.19.1 加的；再往上加行之前先重算网格还剩多少高度，
+        外屏本来就不高）。
+      ⚠ 别在布局里写死子项，胶囊由 CoverLauncherActivity.ChipRow 每次现画
+        （它有"选中态"要跟着当前值走）。
+    -->
+    <LinearLayout
+        android:id="@+id/lookStrip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="#12FFFFFF"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_cols"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookCols"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_icon"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookIcon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_gap"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookGap"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_label"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--
+          第三行（v2.19.1 加）：图标形状 ｜ 背景。
+          排法跟前两行完全一样（标签在左、胶囊在右、左右各占一半），
+
+          ⚠ 外观条从 2 行变 3 行，网格能用的高度少掉约 31dp ——
+            按 RULES §31.1 记的那组几何（外屏 339dp 高）算下来还剩两行半图标，够用；
+            要是以后再加第四行，得重新量一次。
+          ⚠ 「背景」只影响小组件那层底板，配置页是实色底、不会跟着变 ——
+            这是有意的：配置界面自己得看得清，预览交给合上手机看组件。
+        -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_shape"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookShape"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/launcher_look_alpha"
+                    android:textColor="#8A94A6"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:id="@+id/lookAlpha"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvPickHint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="#6C7889"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnPickImport"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/launcher_chip_off"
+            android:gravity="center"
+            android:minWidth="0dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/launcher_import"
+            android:textColor="#E8EDF5"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/btnPickClear"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="6dp"
+            android:background="@drawable/launcher_chip_off"
+            android:gravity="center"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/launcher_clear"
+            android:textColor="#E8EDF5"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/btnPickDone"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="6dp"
+            android:background="@drawable/launcher_chip_on"
+            android:gravity="center"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:text="@string/launcher_done"
+            android:textColor="#FF34C759"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「副屏播放器」封面图的底：圆角 + 深色。
+  没有封面时（或播放器没给图）这里会露出淡色方块，比纯黑好看一点，
+  也顺便让"这一块是封面位"一眼可见。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#1FFFFFFF" />
+    <corners android:radius="14dp" />
+</shape>

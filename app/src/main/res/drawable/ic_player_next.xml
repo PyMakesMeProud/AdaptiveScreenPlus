@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  播放控制：「下一曲」。两条竖线 + 右指三角。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M16.4,6 H18 V18 H16.4 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,6 V18 L15.4,12 Z" />
+</vector>

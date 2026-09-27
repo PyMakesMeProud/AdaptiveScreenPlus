@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用「副屏触控板」的图标。
+  ⚠ 圆底半径 11，字形全部落在以内切圆（r=11）为界的中心区 ——
+  外屏启动器会按「图标形状」把图标裁成圆形（LauncherPrefs.SHAPE_CIRCLE），
+  裁切只减不增，超出内切圆的部分直接没了（RULES §33.2）。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 底：圆 -->
+    <path
+        android:fillColor="#2F7DFF"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <!-- 触控板本体（圆角矩形） -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,6.5 h12 a2,2 0 0 1 2,2 v7 a2,2 0 0 1 -2,2 h-12 a2,2 0 0 1 -2,-2 v-7 a2,2 0 0 1 2,-2 z" />
+    <!-- 板上的光标点（挖成底色，看着是"凹"进去的） -->
+    <path
+        android:fillColor="#2F7DFF"
+        android:pathData="M12,12 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0" />
+</vector>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「Beta 实验室」首次进入那个说明弹窗的自定义内容（v2.19.2）。
+
+  为什么不用 AlertDialog.setMultiChoiceItems：
+  那条路是把列表挂在 message **下面**，正文一长，message 先把高度吃光，
+  列表（也就是那个「默认不再弹出」勾选框）会被整个裁掉 —— 实测在封面屏上
+  连正文本身都被截断在"· 外屏管理……"那一行，勾选框更是影子都没有。
+  自定义一个 LinearLayout 就简单了：正文 + 勾选框都在里面，高度自己撑。
+
+  ⚠️ 正文必须放在**固定高度**的 ScrollView 里，不能给 wrap_content。
+  踩过两次：第一次用 setMultiChoiceItems，勾选框被正文挤没；第二次换成自定义布局但
+  正文 wrap_content，弹窗总高撞上 AlertDialog 的高度上限，底部（勾选框 + 最后一段正文）
+  又被切掉。固定 208dp 之后总高才锁得住：封面屏 720px(=480dp) 里，
+  标题约 60dp + 正文 208dp + 勾选框约 40dp + 按钮区约 70dp ≈ 380dp，稳在框内。
+  正文超出的部分在框里滚 —— 比看不见强。
+
+  ⚠️ 颜色写死是因为弹窗跟着 Activity 的深色主题走，这里不依赖主题默认值。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="22dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="22dp"
+    android:paddingBottom="2dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="208dp">
+
+        <TextView
+            android:id="@+id/tvBetaIntroBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingMultiplier="1.3"
+            android:text="@string/info_beta_intro"
+            android:textColor="#FFE0E0E0"
+            android:textSize="13sp" />
+    </ScrollView>
+
+    <CheckBox
+        android:id="@+id/cbBetaIntroOff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:text="@string/beta_intro_dont_show"
+        android:textColor="#FFE0E0E0"
+        android:textSize="14sp" />
+</LinearLayout>

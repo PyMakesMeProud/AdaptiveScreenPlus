@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  老虎机那个「红色大框」—— 罩住三个格子和底下那行战绩，做出机台面板的感觉。
+
+  框线 3dp 是量过的：4×2 的格子区一共才 100dp 上下，框再厚就把格子挤扁了，
+  1~2dp 又在这个尺寸下糊成一圈，看不出是"框"。
+  ⚠ 只做框、**不填底色**：连原来那层极淡的红也去掉了 —— 填上之后整个格子区泛红，
+  和里面三格的灰底、中奖格的金边混在一起反而脏。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="12dp" />
+    <stroke
+        android:width="3dp"
+        android:color="#FFD93A3F" />
+</shape>

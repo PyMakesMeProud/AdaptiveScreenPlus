@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beta 页的主按钮（实心绿）。
+  绿色与子选项卡选中态同源（#2E7D32），保证"需要动手点"的东西在这一页里读法一致。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#2E7D32" />
+    <corners android:radius="8dp" />
+</shape>

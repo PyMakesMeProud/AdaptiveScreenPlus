@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用「副屏播放器」的图标。
+
+  图形意思：一个音符 —— 两条竖线 + 顶上横梁，底下两个符头（圆）。
+  底色挑了玫红 #EC407A，跟另外五个（蓝 2F7DFF / 绿 23B98C / 橙 F0983A / 紫 8E6BE8 /
+  青 21BFD6）都分得开。
+
+  弧和方块都是**填充路径**（不是描边）：一是跟另外五个图标一个路数，
+  二是 scripts/render_vector.py 只能渲染填充，用描边就预览不了，改完看不见效果。
+
+  字形全部收在圆的安全区内（圆 r=11、圆心 12,12；最远点距圆心约 6.1），
+  理由同 ic_pseudo_touchpad.xml：启动器会把图标裁进圆形。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#EC407A"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <!-- 左音符：符头 + 符干 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.8,10 H9.4 V15.9 H7.8 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6.7,15.9 a2.05,2.05 0 1,0 4.1,0 a2.05,2.05 0 1,0 -4.1,0" />
+    <!-- 右音符：符头 + 符干（比左高一点，两个音高不同） -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M14.6,8 H16.2 V13.9 H14.6 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M13.5,13.9 a2.05,2.05 0 1,0 4.1,0 a2.05,2.05 0 1,0 -4.1,0" />
+    <!-- 横梁：把两条符干顶上连起来 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.8,10 L16.2,8 L16.2,9.8 L7.8,11.8 Z" />
+</vector>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  插入便携屏时的询问弹窗。
+
+  结构上刻意分成两块：
+    · promptScroll —— 会随窗口大小滚动的正文
+    · promptFooter —— 固定钉在底部的两个按钮
+  这样无论窗口多小、DPI 多大，"启用 / 不用"永远看得见、点得到。
+  具体尺寸和字号由 PromptActivity 按当前窗口大小等比缩放后下发。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/promptRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <ScrollView
+        android:id="@+id/promptScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:id="@+id/promptBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="检测到便携屏"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPromptExt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:alpha="0.75"
+                android:text="—"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="是否把手机内屏分辨率改成下面这个？"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvPromptRes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="#0F000000"
+                android:fontFamily="monospace"
+                android:padding="12dp"
+                android:text="手机内屏  →  1080 × 1920"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:alpha="0.65"
+                android:text="拔掉便携屏后会自动还原成原生分辨率。"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cbPromptNoAsk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="以后不再询问，自动按此设置启用"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/promptFooter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnPromptNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="不用"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnPromptYes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="启用"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,1372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  界面总原则（v2.3 起）：
+  正文只用「操作名」，解释性文字一律不常驻 —— 全部收进操作名右侧那个「ⓘ」里，
+  点一下才弹出来。原因是这个界面塞了 4 个选项卡、十几个开关，说明文字一铺开
+  就长到看不完，反而没人看。
+
+  所以在本文件里：
+  · 每个需要解释的开关 / 按钮 / 分节标题，右侧都跟一个 style="@style/InfoIcon" 的 ⓘ；
+  · id 一律是 i + 目标控件名（如 iSwLockPhone），由 MainActivity.bindInfo() 统一挂点击；
+  · 原来那些 alpha="0.62" 的灰色说明段、以及标签里的括号注记，都不要了。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- ==================== 标题 ==================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="18dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="10dp">
+
+        <!--
+          第一行：应用名 + 右上角的「Beta 功能」入口。
+          v2.18.1 之前版本胶囊也挤在这一行，但应用名换成「Z flip便携屏扩展」之后
+          三样东西排不下，于是把胶囊挪到第二行右端。
+          Beta 入口固定在右上角、与下面那排选项卡无关 —— 它进的是另一个界面。
+        -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/app_name"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnBeta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/beta_chip"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="Beta实验室"
+                android:textColor="#FFFFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 第二行：英文名 + 版本号 / 更新日志入口（版本号由 MainActivity 读 PackageInfo 填进来） -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:alpha="0.62"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/app_name_en"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/btnVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/version_chip"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="10dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="3dp"
+                android:text="@string/version_entry"
+                android:textColor="#FF1565C0"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ==================== 选项卡 ==================== -->
+    <RadioGroup
+        android:id="@+id/rgTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
+
+        <RadioButton
+            android:id="@+id/tabState"
+            style="@style/TabItem"
+            android:text="授权与状态" />
+
+        <RadioButton
+            android:id="@+id/tabAuto"
+            style="@style/TabItem"
+            android:layout_marginStart="6dp"
+            android:text="自动旋转" />
+
+        <RadioButton
+            android:id="@+id/tabRes"
+            style="@style/TabItem"
+            android:layout_marginStart="6dp"
+            android:text="内屏管理" />
+
+        <RadioButton
+            android:id="@+id/tabDual"
+            style="@style/TabItem"
+            android:layout_marginStart="6dp"
+            android:text="双屏" />
+    </RadioGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#22000000" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="24dp">
+
+            <!-- ============================================================
+                 选项卡 · 自动旋转
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- ============================================================
+                     保存参数设置（v2.5 起 · v2.6 提到本页最顶端 · v2.7 改成一行两项）
+
+                     为什么提到最上面：这一块本身就是"状态信息"—— 当前接的是哪块屏、
+                     它存过什么、此刻又是什么。一进这一页先看到"我在哪块屏上、
+                     这套参数到底存没存"，比先看一堆开关有用。
+
+                     形状：**一行两项**，每项都有 `已保存` / `当前` 两列 ——
+                     两列不一样就是"改了但还没存"。v2.6 那版一行一项、整整十行，
+                     竖着占掉大半屏；现在 3 行看完。
+                     行数与内容都由代码给（MainActivity.profileItems），
+                     行的长相在 item_profile_row.xml。
+
+                     分辨率与 DPI 不占行：它们跟在 tvProfileHead 那行摘要后面
+                     （"设置分辨率 1080×1920（已保存）"）—— 面板像素数本来就印在
+                     同一行上，另起两行纯属浪费高度，还会和「自动分辨率」那个开关
+                     看着重复。
+
+                     匹配用的是屏幕身份（uniqueId / 名字+面板尺寸），不是 displayId ——
+                     id 重插一次就会变。displayId 只用来显示。
+                     ============================================================ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="保存参数设置" />
+
+                    <TextView
+                        android:id="@+id/iProfile"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="#0F000000"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/tvProfileHead"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="—"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:id="@+id/profileTable"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
+
+                <!-- 三个按钮刻意做小：它们是次要操作（存 / 清一块屏的参数、画面歪了修一下），
+                     不必各占半屏。高度写在"行"上、子项 match_parent ——
+                     并排几个 Button 各写高度时，第二个起会被忽略，见 pair_btn_* 那段注释。
+                     minHeight/minWidth 归零是因为 Button 默认有 48dp/88dp 的下限，
+                     不归零就压不到 36dp、也缩不到 wrap_content。
+
+                     「修复画面」原来在页面最底下单独占一整行，摆到这儿是因为
+                     这一排本来就占不满，而它仨都属于"针对当前这块屏做点什么"。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSaveProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/pair_btn_neutral"
+                        android:minHeight="0dp"
+                        android:minWidth="0dp"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="保存设置"
+                        android:textAllCaps="false"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnClearProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/pair_btn_neutral"
+                        android:minHeight="0dp"
+                        android:minWidth="0dp"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="清除记录"
+                        android:textAllCaps="false"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnRepair"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/pair_btn_neutral"
+                        android:minHeight="0dp"
+                        android:minWidth="0dp"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="修复画面"
+                        android:textAllCaps="false"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/iRepair"
+                        android:layout_marginStart="6dp"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swEnable"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="启用自动方向同步"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/iSwEnable"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <!-- 手机自己的方向（v4.12：原来是个「关闭手机自动旋转，锁定横向」的开关，
+                     现在摊成三档 —— 横屏锁定 / 竖屏锁定 / 自动旋转。值仍然是
+                     （lockPhone, phoneRotation）两个字段，跟「保存参数设置」那格的
+                     「自动旋转」行同源，改哪边另一边都会跟着变）。
+                     v4.13：它和上面的同步开关是要配合着用的（同步开着才会拿这里锁的方向去算落点），
+                     所以不再单开词条，紧贴在开关下面；「同步模式」那一整块已删。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="屏幕方向"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/iSwLockPhone"
+                        style="@style/InfoIcon" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spScreenDir"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="130dp" />
+                </LinearLayout>
+                <!-- 便携屏跟随的落点角度（v4.12：从「同步模式」区挪到同步开关这一块，两项并成一排）。
+                     v4.13「同步模式」整块删掉后，它就成了同步打开时唯一的外屏落点设置。
+                     位置在「屏幕方向」下面 —— 开关 → 手机锁哪 → 外屏落哪，顺着因果排。 -->
+                <LinearLayout
+                    android:id="@+id/rowAngles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="竖屏锁到"
+                            android:textSize="13sp" />
+
+                        <Spinner
+                            android:id="@+id/spPortrait"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:minWidth="74dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="横屏锁到"
+                            android:textSize="13sp" />
+
+                        <Spinner
+                            android:id="@+id/spLandscape"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:minWidth="74dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/rowFixToUser"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/cbFixToUser"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="同时强制忽略应用自己申请的方向"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/iFixToUser"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="手动校准" />
+
+                    <TextView
+                        android:id="@+id/iCalib"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn0"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0°"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn90"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="90°"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn180"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="180°"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn270"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="270°"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnFree"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="恢复系统自动旋转"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <TextView
+                    android:id="@+id/tvLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:alpha="0.7"
+                    android:fontFamily="monospace"
+                    android:text=""
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <!-- ============================================================
+                 选项卡 · 内屏分辨率
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelRes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnResToggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:text="内屏分辨率接管：已关闭"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <!-- 内屏状态。以前被塞在「接管时机」分节的末尾，跟那一节的开关毫无关系，
+                     现在提到最上面、紧跟在接管按钮下面 —— 一进这一页就能看到内屏现在是什么状态。
+                     样式与「授权与状态」页的实时状态、双屏页的副屏状态保持一致（浅色底 + 等宽字）。 -->
+                <TextView
+                    android:id="@+id/tvResState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="#0F000000"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="—"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="分辨率与 DPI" />
+
+                    <TextView
+                        android:id="@+id/iResFields"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <!-- v4.13：分辨率与 DPI 并成一行（用户提的：三项都很短，分两行纯属浪费）。
+                     输入框从 88dp 收到 66dp，一行刚好塞下「分辨率 宽 × 高　　DPI 值」。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="分辨率"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etResW"
+                        android:layout_width="66dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:inputType="number"
+                        android:text="1080"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:text="×"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etResH"
+                        android:layout_width="66dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="1920"
+                        android:textSize="14sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DPI"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etResDpi"
+                        android:layout_width="66dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:inputType="number"
+                        android:text="0"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvResHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:alpha="0.7"
+                    android:fontFamily="monospace"
+                    android:text="—"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swResAutoMatch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="分辨率自动加载"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/iResAutoMatch"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnResFromExt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="读取便携屏分辨率并填入"
+                    android:textSize="13sp" />
+
+                <!-- 刷新率接管：档位候选运行时填，见 MainActivity.setupRefreshRate -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="刷新率" />
+
+                    <TextView
+                        android:id="@+id/iRefreshRate"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="最高"
+                        android:textSize="14sp" />
+
+                    <Spinner
+                        android:id="@+id/spPeakHz"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="最低"
+                        android:textSize="14sp" />
+
+                    <Spinner
+                        android:id="@+id/spMinHz"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvHzState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:alpha="0.7"
+                    android:fontFamily="monospace"
+                    android:text="—"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnApplyHz"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="应用"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/btnResetHz"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="交回系统"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="接管时机" />
+
+                    <TextView
+                        android:id="@+id/iResTiming"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/swResAsk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="插入便携屏时弹窗询问是否启用"
+                    android:textSize="15sp" />
+
+                <Switch
+                    android:id="@+id/swResAutoReset"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="拔出便携屏后自动还原原生分辨率"
+                    android:textSize="15sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnApplyRes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="立即应用"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnResetRes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="还原原生"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnOverlay"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="授予弹窗权限"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnTestPrompt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="测试弹窗"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ============================================================
+                 选项卡 · 授权与状态
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="Shizuku" />
+
+                    <TextView
+                        android:id="@+id/iShizuku"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvShizuku"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Shizuku：检测中…"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnGrant"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="授权 / 重新检测" />
+
+                    <Button
+                        android:id="@+id/btnShizuku"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="打开 Shizuku"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_marginTop="14dp"
+                    android:text="快捷操作" />
+
+                <!-- v4.13：这一行并成一行（用户提的：分两行太空）。
+                     v4.17 重排（用户："这一段的排版堪称灾难"）：
+                       第一排 = 自适应旋转 + 打开无线调试，第二排 = 启动双屏模式 + 一键投屏。
+                       无线调试不再"左边写名字、右边一颗按钮"地分两边，直接做成按钮。
+
+                     为什么无线调试不做成开关：它写的是系统那个键，开起来之后没有必须关掉的场合
+                     （Shizuku 要靠它活着），当前开没开在系统开发者选项里随时能看。
+                     还有一条：它中间会临时武装无障碍代点去点掉系统的确认框，
+                     做成开关会让人以为可以随手来回拨，而每一次"打开"都可能要展开一次内屏。
+                -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swQASync"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="自适应旋转"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/iQASync"
+                        style="@style/InfoIcon" />
+
+                    <Button
+                        android:id="@+id/btnQAAdbWifi"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="打开无线调试"
+                        android:textAllCaps="false"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/iQAAdbWifi"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <!-- 外屏自动旋转（v4.23）。跟上面那个「自适应旋转」是两件事：
+                     那个管内屏那边的方向同步，这个管封面屏 —— 手机横竖一变，
+                     封面屏自己的画面跟着转（外屏原生不跟着手机转）。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swQACoverRot"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="外屏自动旋转"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/iQACoverRot"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnQAOneKey"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="启动双屏模式"
+                        android:textAllCaps="false"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnQACast"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="一键投屏"
+                        android:textAllCaps="false"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/iQACast"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <!-- v4.12：从「内屏管理」页整段搬来（id 一个没改，行为跟以前一模一样）。
+                     v4.13：「开机后进入」原来是「快捷设置」单独一个词条，现在并进这一块的
+                     状态行右边（用户提的）。实际下发的还是那套 cmd device_state，只是时机挪到开机后。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="折叠模式" />
+
+                    <TextView
+                        android:id="@+id/iFold"
+                        style="@style/InfoIcon" />
+
+                    <!-- v4.16：右半边。这个下拉原来光秃秃挂在状态行末尾，
+                         用户看不出它是干什么的；现在给它一个跟「折叠模式」对仗的
+                         标题，ⓘ 紧挨着挂在标题上。 -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="开机选项" />
+
+                    <TextView
+                        android:id="@+id/iBootMode"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvFoldState"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:alpha="0.7"
+                        android:fontFamily="monospace"
+                        android:text="折叠状态：读取中…"
+                        android:textSize="12sp" />
+
+                    <Spinner
+                        android:id="@+id/spBootMode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="108dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnFoldToggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="折叠/展开模式切换"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/btnStateAuto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:text="恢复自动"
+                        android:textAllCaps="false"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="实时状态" />
+
+                    <TextView
+                        android:id="@+id/iRealtime"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#0F000000"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="—"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- ============================================================
+                 选项卡 · 双屏（封面屏 / 便携屏）
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelDual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!--
+                  v4.14 重排（用户逐条给的）：
+                    ① 「启动双屏模式」提到最前 —— 一进这一页先看到主操作；
+                    ② 「双屏模式」与「副屏管理」两个小标题撤掉。前者的说明搬到
+                       「副屏状态」行右边的「关于双屏模式」入口上（同一个弹窗），
+                       后者那条说明挂到「副屏状态」旁边的 ⓘ 上 —— 副屏的详情
+                       跟副屏状态挨着看才顺手；
+                    ③ 「快捷小组件」按钮连同它的 ⓘ 一起撤掉（小组件本身还在，
+                       从系统的组件列表里照样能钉）。
+                -->
+                <Button
+                    android:id="@+id/btnDualOneKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FF2E7D32"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:text="启动双屏模式"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="副屏状态" />
+
+                    <TextView
+                        android:id="@+id/iSubPanel"
+                        style="@style/InfoIcon" />
+
+                    <!-- 原来「双屏模式」那个 ⓘ 的正文搬到这儿：文字入口放在行尾 -->
+                    <TextView
+                        android:id="@+id/tvAboutDual"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="end|center_vertical"
+                        android:minHeight="34dp"
+                        android:paddingStart="6dp"
+                        android:text="@string/dual_about_mode"
+                        android:textColor="#FF2E7D32"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDualState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#0F000000"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="读取中…"
+                    android:textSize="12sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <!-- 副屏管理（v4.11 从 Beta 实验室搬来；v4.14 撤掉它自己的小标题）。
+                     v4.17：这里原来躺着两条挨着的分隔线、中间只有这段注释 —— 删掉下面那条，
+                     一条足够分开「副屏状态」与「副屏管理」两个区域（用户："两个分隔符"）。 -->
+
+                <TextView
+                    android:id="@+id/tvSubState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="#0F000000"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="读取中…"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnSubOpen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="打开副屏桌面"
+                    android:textAllCaps="false"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="副屏桌面上的伪应用" />
+
+                    <TextView
+                        android:id="@+id/iPseudo"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <!-- v4.17：伪应用开关改成按钮式（用户："不要一个开关占一排"，
+                     而且要"按钮的颜色做成伪应用图标颜色"）。
+                     底色的唯一来源是 MainActivity.bindPseudoToggle 里那份色值，跟
+                     drawable/ic_pseudo_*.xml 的 fillColor 一一对应，改图标就要同步改那边。
+                     v4.18 遥控板整个删掉、键盘早已下线；v472 加了「副屏播放器」，
+                     四个排成两行 —— 一排四个的话「副屏播放器」五个字在每个格子里放不下。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/swPseudoPad"
+                        style="@style/PseudoToggle"
+                        android:layout_weight="1"
+                        android:text="@string/ext_pad_title" />
+
+                    <CheckBox
+                        android:id="@+id/swPseudoCast"
+                        style="@style/PseudoToggle"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/ext_cast_title" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/swPseudoStatus"
+                        style="@style/PseudoToggle"
+                        android:layout_weight="1"
+                        android:text="@string/ext_status_title" />
+
+                    <CheckBox
+                        android:id="@+id/swPseudoPlayer"
+                        style="@style/PseudoToggle"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/ext_player_title" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#22000000" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="DeX 模式" />
+
+                    <TextView
+                        android:id="@+id/iDex"
+                        style="@style/InfoIcon" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnDexStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="启动 DeX 模式"
+                    android:textAllCaps="false"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tvDexInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#0F000000"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="还没试过。插上便携屏之后点上面的按钮。"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

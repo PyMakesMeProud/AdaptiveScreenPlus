@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  滚筒：新来的那一项从下面顶上来。
+
+  这一份是给 ViewFlipper 用的（XML 里写 android:inAnimation）。RemoteViews 不给动画 API，
+  「滚动」只能靠每 130ms 切一次 child，动画由宿主按这份文件渲染。
+  ⚠ 100ms 刻意比 SlotWidgetProvider.TICK（130ms）**短一档** —— 两者相等时，一次 IPC
+  抖动就会让下一帧在上一跳还没走完时打断它，看起来就是顿挫。
+  用 linear 插值：滚动该是匀速的，默认的加速曲线反而像卡了。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="100"
+    android:interpolator="@android:anim/linear_interpolator">
+
+    <translate
+        android:fromYDelta="100%"
+        android:toYDelta="0" />
+
+    <!-- 头尾留一点暗，看起来才有"绕过滚筒背面"的错觉 -->
+    <alpha
+        android:fromAlpha="0.35"
+        android:toAlpha="1.0" />
+</set>

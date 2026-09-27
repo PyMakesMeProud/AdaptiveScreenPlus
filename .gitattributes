@@ -1,0 +1,7 @@
+# 仓库内统一按 LF 存储；Windows 检出时由 core.autocrlf 处理
+* text=auto
+
+# 跨平台可执行脚本的行尾要固定
+gradlew   text eol=lf
+*.bat     text eol=crlf
+*.jar     binary

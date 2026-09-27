@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用「副屏键盘」的图标。字形落在内切圆安全区内，理由同 ic_pseudo_touchpad.xml。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#23B98C"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <!-- 键盘板 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M5,6.5 h14 a1.6,1.6 0 0 1 1.6,1.6 v7.8 a1.6,1.6 0 0 1 -1.6,1.6 h-14 a1.6,1.6 0 0 1 -1.6,-1.6 v-7.8 a1.6,1.6 0 0 1 1.6,-1.6 z" />
+    <!-- 键位：两排小方块 + 底下一条空格 -->
+    <path
+        android:fillColor="#23B98C"
+        android:pathData="M6.6,9.2 h2 v2 h-2 z M10,9.2 h2 v2 h-2 z M13.4,9.2 h2 v2 h-2 z M16.8,9.2 h0.6 v2 h-0.6 z M6.6,12.4 h2 v2 h-2 z M10,12.4 h2 v2 h-2 z M13.4,12.4 h2 v2 h-2 z M16.8,12.4 h0.6 v2 h-0.6 z" />
+    <path
+        android:fillColor="#23B98C"
+        android:pathData="M9,15 h6 v1.4 h-6 z" />
+</vector>

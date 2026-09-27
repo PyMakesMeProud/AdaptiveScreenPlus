@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  双屏页「鼠标检测」按钮的底：中性浅灰圆角。
+
+  为什么三个按钮要自己画底（v2.4）：这几个按钮是**并排**的，如果左边用系统默认
+  Button（One UI 渲染成浅灰圆角胶囊）、右边用 setBackgroundColor（方块直角），
+  挨在一起就一个圆一个方，看着像没做完。
+  → 左边用本文件、右边用 pair_btn_on / pair_btn_off，圆角半径一致，成对才整齐。
+  用 <ripple> 包一层，是为了保住按下时的反馈 —— 纯 <shape> 是死板的，按下去毫无动静。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33000000">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFEDEDED" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</ripple>

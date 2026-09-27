@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「手机状态」小组件（外屏 2×2）。
+
+  ── 为什么整块就一个 ImageView ────────────────────────────────
+  四个指标要画进度条、要固定配色（绿=电量 / 橙红=温度 / 紫=内存 / 蓝=存储），
+  RemoteViews 里能用的控件拼不出这个效果；ProgressBar 又会套上宿主桌面的主题色，
+  在外屏上深浅不可控。所以干脆整块画成一张位图（WidgetStatus.draw），这里只负责
+  把它铺满 —— scaleType 用 fitXY：位图尺寸是按组件实际 dp 现算的，比例一致，不会变形。
+
+  ── 尺寸为什么是 2×2 ────────────────────────────────────────
+  一开始按 4×2（312×133dp）做，用户实测那块槽位把内容摊成扁的，四个格子被拉得很难看
+  ⇒ 改成三星自家 2×2 槽位（150×133dp），四个格子接近方形。
+
+  ── 内容排布 ───────────────────────────────────────────────
+      左上 电量（充电时读数变青）      右上 CPU 温度
+      左下 内存                        右下 存储
+
+  ⚠ 这里刻意**没有**任何点击：用户点名这个组件只提供信息观看，不提供点击功能。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/statusRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card"
+    android:padding="4dp">
+
+    <ImageView
+        android:id="@+id/statusImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/widget_status_cover_title"
+        android:scaleType="fitXY" />
+
+</LinearLayout>

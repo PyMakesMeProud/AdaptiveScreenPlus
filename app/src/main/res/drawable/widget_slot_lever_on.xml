@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  老虎机的摇杆（拉下态）：球往下走一格、杆跟着缩，球再亮一点。
+  滚动开头那三帧用它，给「摇杆被拉下来了」的手感 —— 小组件做不了真动画，
+  只能靠这一下换图示意。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- 底座 -->
+    <path
+        android:fillColor="#FF5F656D"
+        android:pathData="M11,39 h26 a3,3 0 0 1 3,3 a3,3 0 0 1 -3,3 h-26 a3,3 0 0 1 -3,-3 a3,3 0 0 1 3,-3 z" />
+
+    <!-- 竖杆（缩短） -->
+    <path
+        android:fillColor="#FF9AA0A6"
+        android:pathData="M22,25 h4 v16 h-4 z" />
+
+    <!-- 顶上的球（下移） -->
+    <path
+        android:fillColor="#FFFF8F80"
+        android:pathData="M17,19 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0 z" />
+</vector>

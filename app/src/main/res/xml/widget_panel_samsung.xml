@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  三星封面屏（外屏）小组件的专用声明 —— 光靠 widgetCategory 是不够的。
+
+  ⚠ 这是一个**非 AOSP 的自定义元素**：根标签是 `samsung-appwidget-provider`，
+  属性 `display` 没有 android: 命名空间，取值 `sub_screen`（三星内部把封面屏叫 SubScreen）。
+
+  它必须通过 receivers 上的这条 meta-data 引用：
+
+      <meta-data android:name="com.samsung.android.appwidget.provider"
+                 android:resource="@xml/widget_panel_samsung" />
+
+  （注意 meta-data 的 name 是 `com.samsung.…`，不是 `android.appwidget.provider` ——
+   后者是标准的、指向 widget_panel_info.xml 的那份，两份要同时存在。）
+
+  依据：拿一个**确实出现在**「设置 → 外屏 → 小组件」里的第三方应用
+  （com.tianweixing.atianwidget，即用户桌面上的「阿田自用」）的 APK 反查它的清单，
+  它的接收器上就挂着这条 meta-data，指向的 XML 内容只有两行，就是这个元素。
+
+  反证也很干净：按 `dumpsys appwidget` 把全机 provider 的分类位都数了一遍，
+  只声明 home_screen 的第三方组件（网易云音乐、B站、QQ、MacroDroid…）
+  在封面屏托盘里一个都没有；而本应用补上这条 meta-data 之前，
+  即使把 widgetCategory 加成 home_screen|keyguard 也依然不出现 ——
+  说明门槛既不是 home_screen 也不是 keyguard，而是这条三星自己的声明。
+-->
+<samsung-appwidget-provider display="sub_screen" />

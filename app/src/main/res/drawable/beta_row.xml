@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beta 页里「分辨率预设」列表的一行。
+  做成浅底圆角，让每一行是可点的整体；不用分割线 —— 黑底上分割线太散。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#14FFFFFF" />
+    <corners android:radius="8dp" />
+</shape>

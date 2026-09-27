@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「老虎机」：内屏（桌面）那一份声明，4×2。
+
+  ── 尺寸 250×110 dp = 内屏 4×2 ─────────────────────────────────────
+  宽按老公式 70×4-30 = 250 取的；高与同项目里那份 2×1 的面板（56dp 一行）对齐，
+  两行 = 110dp。两者都不是拍脑袋，是照着已经在本机钉得上的 widget_panel_info.xml
+  往下推的：那一份 2×1 = 110×56 实测可用。
+
+  ⚠ 高度别往下压：三格里的字（「双屏模式」4 个字，10sp）加上底部那一行战绩
+  已经占满了 110dp，压到 90 以下格子会被挤成一条线。
+
+  ⚠ `widgetCategory` 只写 home_screen —— 带上 keyguard 或三星私有的 8192 位，
+  会让它变成「封面屏组件」。封面屏那份在 widget_slot_cover.xml，是另一个 receiver。
+
+  ⚠ updatePeriodMillis=0：内容不靠系统定时刷（战绩变化只发生在摇的时候，
+  那时是代码自己调 updateAppWidget 重画）。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_slot_desc"
+    android:initialLayout="@layout/widget_slot"
+    android:minHeight="110dp"
+    android:minResizeHeight="110dp"
+    android:minResizeWidth="250dp"
+    android:minWidth="250dp"
+    android:previewLayout="@layout/widget_slot"
+    android:resizeMode="none"
+    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

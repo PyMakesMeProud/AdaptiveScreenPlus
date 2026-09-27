@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  中奖艺术字「冒出来」：从小变大 + 淡入 + 从下面顶上来。
+
+  挂在这个 ViewFlipper 的 inAnimation 上（layout 里的 slotWinFlip）。三样叠在一起
+  才有"蹦出来"的劲；只做淡入的话是"浮"出来的，没那个味道。
+  用 overshoot：到顶时会过一点点再收回，像被弹上来的。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="300"
+    android:interpolator="@android:anim/overshoot_interpolator">
+
+    <translate
+        android:fromYDelta="45%"
+        android:toYDelta="0" />
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+
+    <scale
+        android:fromXScale="0.55"
+        android:fromYScale="0.55"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
+</set>

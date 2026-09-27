@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  滚筒：被顶掉的那一项往上走。
+
+  与 slot_roll_in.xml 是一对 —— 一个进一个出，方向必须相反（进从下、出往上），
+  否则看不出是"往下滚"还是"往上滚"。
+  时长同样要跟 SlotWidgetProvider.TICK **短一档**（它俩得在同一格里一起走完）。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="100"
+    android:interpolator="@android:anim/linear_interpolator">
+
+    <translate
+        android:fromYDelta="0"
+        android:toYDelta="-100%" />
+
+    <alpha
+        android:fromAlpha="1.0"
+        android:toAlpha="0.35" />
+</set>

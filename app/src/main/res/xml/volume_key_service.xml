@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  音量键长按用的无障碍服务配置（v2.18.3 新增）。
+
+  ⚠⚠ 两个属性必须**同时**写，少一个长按音量键就完全没有反应（v3.0 修的就是这个）：
+
+    android:canRequestFilterKeyEvents="true"   ← 能力（capability）
+    android:accessibilityFlags="flagRequestFilterKeyEvents"   ← 申请（flag）
+
+  这两个是**两回事**，写在两个地方、进两个不同的位域：
+    · canRequestFilterKeyEvents → AccessibilityServiceInfo.mCapabilities 的
+      CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS 位（值 8）；
+    · flagRequestFilterKeyEvents → 同类的 mFlags 位。
+  AOSP 里 FLAG_REQUEST_FILTER_KEY_EVENTS 的注释写得很死：
+  "Services that want to set this flag have to declare this capability in their
+   meta-data by setting the attribute canRequestFilterKeyEvents to true,
+   otherwise this flag will be ignored." —— 没声明能力，这个 flag 会被静默忽略。
+
+  v2.18.3 只写了后者、漏了前者，症状就是「开关全开了、长按音量上键毫无反应」，
+  而且**一点日志都没有**（onKeyEvent 压根没被调用过）。
+  现场证据（dumpsys accessibility 里那条 Bound services 的属性）：
+    MacroDroid（能用）  : requestFilterKeyEvents=true, capabilities=201  ← 201 含 8
+    本应用（不能用）    : requestFilterKeyEvents=true, capabilities=1    ← 只有 1，没有 8
+  改完再 dump，本应用的 capabilities 应变成 9（1 读窗口 + 8 过滤按键）。
+
+  canRetrieveWindowContent 必须为 true —— 同上那条老规矩：
+  「requestFilterKeyEvents 只有在服务同时能读取窗口内容时才被授予」。
+
+  ── 能力一次性声明齐（v3.1）────────────────────────────────────────
+  加了 canPerformGestures（执行手势）。理由不是现在要用，而是**以后要用**：
+  后续的副屏手势等功能都打算挂在**这一个服务**上，而能力是跟着服务一起生效的 ——
+  只要不新增服务条目，用户就不必再去「设置 → 无障碍」里点一次。
+  所以与其等做到那一步再改这份文件、让用户怀疑"是不是又要重新授权"，
+  不如现在就声明好：改这份 XML 重装不会影响服务已开启的状态（实测过）。
+
+  ── canTakeScreenshot（v4.8 起要声明）───────────────────────────────
+  手势条"划出去整块外屏跟着糊起来"要抓一帧画面，而抓帧这条路只有无障碍服务走得通：
+  不声明 canTakeScreenshot，takeScreenshot() 直接失败。
+
+  ⚠ 万一系统因为这项能力要求用户单独允许：拿不到帧不是硬失败，模糊那一层会退成
+  "只压一层暗度"，日志里会写明是哪一种（没能力 / 抓回来是空的）。
+  ⚠ capabilities 可以自己查：dumpsys accessibility 里这一项应从 41 变成 169
+  （多 128 = CAPABILITY_CAN_TAKE_SCREENSHOT）。
+
+  ── 事件类型与 flags：v4.21 加回 CONTENT_CHANGED + REPORT_VIEW_IDS ────
+
+  v4.20 把这两项收回最小，理由是"那张无线调试确认框合盖时被投到灭着的内屏上，
+  压根没人能点它"。这个理由只对了一半 —— 框确实看不见，但内屏是**可以点亮**的，
+  而且点亮它不需要 Shizuku（见 DualScreen.openLocal 与 RULES §87）。
+  内屏一亮，框就是正常可见窗口，无障碍立刻点得着。
+
+  ★ accessibilityEventTypes 必须有 typeWindowContentChanged：按钮画进树那一刻
+    发的是 CONTENT_CHANGED，不是 STATE_CHANGED。只订后者 = 看一眼没有、
+    永远没有第二次机会（v4.19 的实际死因之一）。
+
+  ★ accessibilityFlags 必须有 flagReportViewIds：少了它
+    findAccessibilityNodeInfosByViewId("android:id/button1") 永远返回空，
+    只能拿中文 contains 去猜 —— 而无线调试设置页整页都有「无线调试」四个字，
+    必然误判。这是 v4.19 的另一个死因。
+
+  ★ flagRetrieveInteractiveWindows 现在没有调用方了（跨屏键盘导航 v4.18 删除，
+     全树已无 getWindows()）；留着不影响别的功能。
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRequestFilterKeyEvents|flagRetrieveInteractiveWindows|flagReportViewIds"
+    android:canPerformGestures="true"
+    android:canRequestFilterKeyEvents="true"
+    android:canRetrieveWindowContent="true"
+    android:canTakeScreenshot="true"
+    android:description="@string/a11y_volume_desc"
+    android:settingsActivity="com.wb.extrotator.BetaActivity" />

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  副屏管理里那几个开关的「轨道」颜色（v3.17）。
+
+  ⚠ 这里给的不是"最终画出来的颜色"，是 **tint，会被再乘一次**：
+  系统那套开关轨道的 drawable 自带约 30% 的 alpha，实测
+    tint #2E7D32 (46,125,50)  →  屏上 (14,38,15)
+    tint #494B4F (73,75,79)   →  屏上 (22,23,24)
+  三个通道都是同一个 0.30 的比例，所以想让它"看起来"是某个亮度，
+  tint 得除以 0.3 往上给。
+
+  开 = 品牌绿 #2E7D32（和主界面选项卡选中态、Beta 页主按钮同一个绿，
+  让"这里是开着的"在这一页里读法一致）—— 配上白滑块，黑底上一眼可辨。
+  关 = 近白 #F0F2F5 → 屏上约 (72,73,74)，跟系统默认那个轨道同一个视觉重量
+  （第一版这里给了 #494B4F，屏上只剩 (22,23,24)，开关看着像个孤零零的圆点，
+  等于把"开看不见"换成了"关看不出是个开关"）。
+
+  滑块色见 beta_switch_thumb.xml，那边为什么必须显式给也在那儿写了。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#FF2E7D32" android:state_checked="true" />
+    <item android:color="#FFF0F2F5" />
+</selector>

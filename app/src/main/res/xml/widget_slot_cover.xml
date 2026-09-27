@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「老虎机（外屏）」：封面屏专用的一份声明，4×2。
+
+  ── 为什么单独拆一份 ────────────────────────────────────────────
+  跟 widget_panel_cover.xml 同一套规矩：三星封面屏的小组件要**内外屏各一个 receiver**，
+  外屏那个只声明 `widgetCategory="keyguard"`（**不带 home_screen**），并且必须挂上
+  com.samsung.android.appwidget.provider 那条私有 meta-data（内容见 widget_panel_samsung.xml）。
+  少了任何一样，组件在外屏托盘里就不出现（v2.8/v2.9 的老教训）。
+
+  ── 尺寸 312×133 dp = 外屏 4×2（这一档是三星自己就有的）────────────
+  取自三星自家 res 的尺寸资源（`aapt2 dump resources`，见 widget_panel_cover.xml 的考证）：
+    · common_cover_multi_widget_width_4x2 = 312dp  height_4x2 = 133dp  （时钟）
+    · widget_cover_multi_hourly_minWidth  = 312dp  minHeight  = 133dp  （天气）
+  列 cell = 69dp、间距 12dp（4×69+3×12 = 312 ✓）；行 = 60.5dp、间距 12dp（2×60.5+12 = 133 ✓）。
+
+  ⚠ 与 2×2 那份的差别只在这里：外屏一行高 60.5dp，所以「4×2」是 133dp 高 —— 跟 2×2 一样高。
+  真正变宽的是横向（150 → 312），正好用来摊开三个格子加一根摇杆。
+  ⚠ 别试着往下改尺寸：v2.11 把 2×2 改成 2×1 之后组件直接从外屏列表里消失了。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_slot_cover_desc"
+    android:initialKeyguardLayout="@layout/widget_slot"
+    android:initialLayout="@layout/widget_slot"
+    android:minHeight="133dp"
+    android:minResizeHeight="133dp"
+    android:minResizeWidth="312dp"
+    android:minWidth="312dp"
+    android:previewLayout="@layout/widget_slot"
+    android:resizeMode="none"
+    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="keyguard" />

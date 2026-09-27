@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beta 页的信息卡片。用来包住"当前状态"这类只读内容。
+  比页背景略亮一点点，做出一层浅浅的层次，但不加描边 —— 描边留给可点击的东西。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#0FFFFFFF" />
+    <corners android:radius="10dp" />
+</shape>

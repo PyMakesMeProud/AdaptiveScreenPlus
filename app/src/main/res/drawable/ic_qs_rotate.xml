@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  快捷开关图标：自动旋转。
+  画法就是「一个缺了右上角的圆 + 末尾一个朝右的箭头」——
+  小尺寸下只求一眼认出来，不做手机轮廓那种细节（16dp 上全糊成一个白团）。
+  颜色写死白，实际颜色由界面 setColorFilter 决定（开=白，关=半透明白）。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 圆环：圆心 (12,13)、r=7.5，从正右 (19.5,13) 顺时针绕 270° 到正上 (12,5.5)，
+         缺口留在右上角给箭头用。
+         ⚠ 两个弧标志位是 1 1（大弧 + 顺时针），不能写 1 0 —— 后者会让 SVG 选另一侧的
+         圆心 (19.5,5.5)，整圈被甩到视口右上角外面去，只剩一小段残弧（v4.22 的错位就是这个）。 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.1"
+        android:strokeLineCap="round"
+        android:pathData="M19.5,13 A7.5,7.5 0 1 1 12,5.5" />
+
+    <!-- 箭头：落在圆弧终点，朝右 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10.2,2.1 L15.6,5.5 L10.2,8.9 Z" />
+</vector>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  老虎机的摇杆（常态）。
+  自下而上三段：底座 → 竖杆 → 顶上那个球。球用暖红，跟深色卡片拉开对比，
+  免得整个小组件看起来是一块灰的。
+  拉下态是另一份 widget_slot_lever_on.xml（球往下走一格）。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- 底座 -->
+    <path
+        android:fillColor="#FF5F656D"
+        android:pathData="M11,39 h26 a3,3 0 0 1 3,3 a3,3 0 0 1 -3,3 h-26 a3,3 0 0 1 -3,-3 a3,3 0 0 1 3,-3 z" />
+
+    <!-- 竖杆 -->
+    <path
+        android:fillColor="#FF9AA0A6"
+        android:pathData="M22,17 h4 v24 h-4 z" />
+
+    <!-- 顶上的球 -->
+    <path
+        android:fillColor="#FFFF6B5B"
+        android:pathData="M17,11 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0 z" />
+</vector>

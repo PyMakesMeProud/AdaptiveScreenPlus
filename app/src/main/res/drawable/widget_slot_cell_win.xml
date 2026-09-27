@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  中奖那几格压在最上面的金边。
+
+  它是**覆盖层**（layout 里的 slotGlowA/B/C），叠在滚筒之上，所以：
+  · 底色几乎透明（alpha 0x1A）—— 铺满金会把格子里的白字压得看不清，而字才是结果本身；
+  · 只留 2dp 描边做"亮起来"的观感。
+  它不可点，所以不会挡住摇杆或格子本身的点击。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#1AFFC53D" />
+    <corners android:radius="10dp" />
+    <stroke
+        android:width="2dp"
+        android:color="#FFFFC53D" />
+</shape>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「免 DeX 桌面模式」按钮 · 已开启时的底：绿底圆角。
+  白字写在布局 / MainActivity 里（setTextColor）。
+  圆角与 pair_btn_neutral / pair_btn_off 保持一致，三个按钮才是一套。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF2E7D32" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</ripple>

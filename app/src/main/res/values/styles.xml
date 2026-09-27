@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      询问弹窗用的主题。
+      在 DeviceDefault 的 Dialog 主题基础上把系统标题栏去掉 —— 弹窗自己已经有
+      「检测到便携屏」这个标题，系统那条「自适应屏幕」纯属白占高度，
+      横屏时尤其吃亏（本来就只有 300 多 dp 可放）。
+    -->
+    <style name="AppPromptDialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+    </style>
+
+    <!--
+      分节小标题（「折叠模式」「接管时机」这一类）。
+      抽成 style 是为了让布局文件少重复几十行 —— 这个界面有十几个分节。
+    -->
+    <style name="SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--
+      「ⓘ」详情图标，界面里所有解释性文字都收进它，点一下弹对话框。
+      34dp 是点击热区，不是图形大小；用字符比画一个圆更贴合正文字号。
+    -->
+    <style name="InfoIcon">
+        <item name="android:layout_width">34dp</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:background">@drawable/info_ripple</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:text">ⓘ</item>
+        <item name="android:textColor">#FF6B7280</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <!-- 深色页上的 ⓘ（Beta / 投屏 / 副屏页 / 外屏启动器 / 修复界面）。 -->
+    <style name="BetaInfoIcon" parent="@style/InfoIcon">
+        <item name="android:textColor">#8CFFFFFF</item>
+    </style>
+
+    <!-- 顶部四个选项卡的按钮。同样是为了消掉 4 份几乎一样的 12 行属性。 -->
+    <style name="TabItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/tab_bg</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:textColor">@color/tab_text</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!--
+      Beta 页（黑底）的子选项卡按钮。
+      尺寸与主界面的 TabItem 一致，只换配色 —— 主界面那套"未选中 = 淡黑 #14000000"
+      放到黑底上等于隐身，所以这里换成淡白。
+    -->
+    <style name="BetaTabItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/beta_tab_bg</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:textColor">@color/beta_tab_text</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- Beta 页的分节标题（黑底，浅色字）。 -->
+    <style name="BetaSectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#FFF0F0F0</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Beta 页的正文说明。 -->
+    <style name="BetaText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#8CFFFFFF</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingMultiplier">1.35</item>
+    </style>
+
+    <!-- Beta 页的输入框（黑底）。必须显式给文字色，否则是系统默认的黑色，在黑底上看不见。 -->
+    <style name="BetaInput">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/beta_input</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:textColor">#FFF0F0F0</item>
+        <item name="android:textColorHint">#59FFFFFF</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Beta 页的主按钮（实心绿）。 -->
+    <style name="BetaButtonPrimary">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/beta_btn_primary</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">11dp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Beta 页的次按钮（描边）。撤销类动作用它，不跟主按钮抢注意力。 -->
+    <style name="BetaButtonGhost">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/beta_btn_ghost</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">11dp</item>
+        <item name="android:textColor">#E6FFFFFF</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Beta 页里的小胶囊按钮（「＋ 新增」这种）。 -->
+    <style name="BetaChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/beta_chip</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!--
+      Beta 页的开关（黑底）。
+      这一页用的是 DeviceDefault 深色主题，文字与开关色都得显式给 —— 靠主题的话，
+      文字会落到系统默认色；开关滑块（开态）更会解析成近乎纯黑，黑底上等于没有。
+
+      thumbTint / trackTint 是 v3.16 补的，专门治"开态看不见"：
+      本机实测开态滑块 RGB(25,26,31) —— 比关态 (185,185,185) 还暗，
+      用户根本分不出哪个开着。两态配色见 res/color/beta_switch_*.xml。
+    -->
+    <style name="BetaSwitch">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:textColor">#FFF0F0F0</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:thumbTint">@color/beta_switch_thumb</item>
+        <item name="android:trackTint">@color/beta_switch_track</item>
+    </style>
+    <!--
+      副屏桌面「伪应用」的按钮式开关（v4.17）。
+      CheckBox 去掉方框当按钮用；开 / 关的底色与文字颜色都由
+      MainActivity.applyPseudoLook 现场上（开着 = 那个伪应用图标的主色）。
+      这里的 background 只是「关」的样子，进页面第一帧不会闪白。
+    -->
+    <style name="PseudoToggle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/pseudo_toggle_bg</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:textColor">#FFBBBBBB</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>

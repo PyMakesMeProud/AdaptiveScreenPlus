@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  副屏管理里那几个开关的「滑块」颜色（v3.16）。
+
+  为什么必须显式指定：这一页是 DeviceDefault **深色**主题，开关的滑块在"开"的时候
+  取的是主题的 colorControlActivated，在本机解析出来的颜色几乎是黑的
+  —— 实测开态滑块 RGB(25,26,31)，关态反而 (185,185,185)：
+  **开比关还看不见**，黑底上等于没了。既然是"默认关、开一次就记住"的开关，
+  开态看不见就是致命伤，所以不再指望主题，直接把两态都钉死。
+
+  配色跟主界面选项卡选中态同源（#2E7D32）：开 = 白滑块压在品牌绿轨道上，
+  关 = 浅灰滑块压在浅灰轨道上（轨道色见 beta_switch_track.xml ——
+  注意那边给的是会被再乘一次 alpha 的 tint，不是最终颜色）。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#FFFFFFFF" android:state_checked="true" />
+    <item android:color="#FFB9BDC4" />
+</selector>

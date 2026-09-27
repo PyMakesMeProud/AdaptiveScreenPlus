@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  长按菜单里每一行的按下反馈（v4.16）。
+  用 ripple 而不是自绘 selector：外屏上手指划过去那一下有扩散感，比单纯变色自然。
+  圆角 9dp = 外壳 12dp 减去四周 4dp 的 padding，边角对得上。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <corners android:radius="9dp" />
+            <solid android:color="#FFFFFFFF" />
+        </shape>
+    </item>
+</ripple>

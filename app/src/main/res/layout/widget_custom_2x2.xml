@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「自定义操作」小组件（外屏 2×2）。
+
+  ── 与「双屏快捷面板（外屏）」的关系 ──────────────────────────────
+  骨架、尺寸、底色思路完全一样（widget_panel_2x2.xml），只有两点不同：
+  · 四个格子的内容不是写死的，由 CustomCoverWidgetProvider 现读设置画上去；
+  · 配色统一用一种青色（widget_btn_custom），不按功能分色 —— 因为这里"哪格是什么"
+    用户随时会改，颜色跟着功能走反而会让人以为换了个东西。
+
+  ── 空着的时候显示什么 ────────────────────────────────────────
+  一个加号。用户要的是"加进来先是空白的，点它才设置"，所以空白态必须一眼看出
+  "这里能点、点了能配" —— 加号是最直白的写法。
+
+  ── 规矩（沿用 widget_panel_2x2.xml 那套）──────────────────────
+  · 按钮都用 TextView + 圆角背景，**不用 <Button>**，免得各家桌面把主题色盖上来；
+  · 四个 android:id 都必须被 provider 画到，少一个就是整块「无法显示微件」。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCustom0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_custom"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_custom_empty"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnCustom1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_custom"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_custom_empty"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCustom2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_custom"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_custom_empty"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnCustom3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_custom"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_custom_empty"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

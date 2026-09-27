@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  v2.18.1：图标换成 original/图标.jpg 处理后的位图。
+  · background 是纯蓝（取自图标底色），
+  · foreground 是各密度的 ic_launcher_foreground.png（内容缩到 62% 居中、四周透明），
+    那圈透明由背景补成同一个蓝，所以裁成任何形状都不会露白边。
+  v2.18.2 修正：前景从 90% 收到 62%。自适应图标画布 108dp，启动器只显示中心
+  约 72dp；90% 时主体外接圆 108dp，四角被裁得看不出画的是什么。62% 时主体
+  外接圆 74.5dp，完整落在可见区内。换算过程见 scripts/make_icon.py 文件头。
+  旧的 drawable/ic_launcher_foreground.xml（那三个白色箭头）已不再使用。
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

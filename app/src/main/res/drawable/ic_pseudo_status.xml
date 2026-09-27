@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  伪应用「状态展示柜」的图标。
+
+  图形意思：一块仪表 —— 开口朝下的粗弧是刻度盘，中间那根指针加轴心就是「正在读表」。
+  底色挑了青色 #21BFD6，跟另外四个（蓝 2F7DFF / 绿 23B98C / 橙 F0983A / 紫 8E6BE8）分得开，
+  也跟这一页里面的主色一路。
+
+  弧和指针都是**填充路径**（不是描边）：一是跟另外四个图标一个路数，
+  二是 scripts/render_vector.py 只能渲染填充，用描边就预览不了，改完看不见效果。
+
+  字形全部收在圆的安全区内（圆 r=11、圆心 12,12；最远点距圆心约 7），
+  理由同 ic_pseudo_touchpad.xml：启动器会把图标裁进圆形。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#21BFD6"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <!-- 刻度盘：中心 12,13；外半径 7、内半径 5.2，开口在正下方 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M5.94,16.5 A7,7 0 1,1 18.06,16.5 L16.5,15.6 A5.2,5.2 0 1,0 7.5,15.6 Z" />
+    <!-- 指针：从轴心指向右上 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11.5,12.5 L12.5,13.5 L15.7,10.3 L14.7,9.3 Z" />
+    <!-- 轴心 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,13 m-1.8,0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0" />
+</vector>

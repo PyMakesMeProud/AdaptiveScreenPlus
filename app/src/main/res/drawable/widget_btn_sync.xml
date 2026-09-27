@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  小组件里的「方向同步」按钮底：青色圆角。理由同 widget_btn_dual.xml。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF00838F" />
+    <corners android:radius="12dp" />
+</shape>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 「面板内容」那两枚排序箭头的底：只给按下去那一下的白色水波纹，本身是透明的。
+     Beta 页是黑底，平台主题自带的水波纹在浅色主题下是深灰的，按下去看不见。 -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40FFFFFF" />

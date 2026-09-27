@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「双屏快捷面板（外屏）」专用的布局 —— 2×2 四格铺满。
+
+  ── 为什么跟内屏那份分开 ──────────────────────────────────────────
+  内屏那份（widget_panel.xml）占 2×1（110×56dp），只放得下两个按钮；
+  外屏这份占 2×2（150×133dp），四格铺满：
+      左上 折叠/展开   右上 自适应旋转
+      左下 双屏模式     右下 一键投屏
+  ⚠️ v2.13 之前外屏复用的还是内屏那份布局 —— 一条固定 56dp 高的窄条居中摆着，
+  在 133dp 高的格子里上下空出一大截。用户的原话是"你得把你该占用的空间占满，
+  不要给无意义的留白"，所以这里根布局直接 match_parent + 铺底色，一格不剩。
+
+  ── 规矩（沿用 widget_panel.xml 那套）────────────────────────────
+  · 按钮都用 TextView + 圆角背景（见 widget_btn_*.xml），**不用 <Button>**，
+    免得各家桌面把主题色盖上来变成看不清的样子；
+  · 「自适应旋转」是开关类按钮，状态由 PanelWidgetProvider.build()
+    现读设置后画上去（名字 + 开/关 两行，开=本色 / 关=灰底），
+    这里写的 android:text 只是占位；
+  · 另外三个是动作按钮，点下去交给 WidgetActionActivity。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnWidgetFold"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_fold"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_fold"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnWidgetSync"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_sync"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_sync"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnWidgetDual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_dual"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_dual"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnWidgetCast"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_cast"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_cast"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

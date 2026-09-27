@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」的组件声明 —— 352×339dp / targetCell 4×4 的整页格子。
+
+  ── 尺寸与 resizeMode 为什么是这一套 ────────────────────────────────────
+  全部照抄「阿田自用」的 SimpleLauncherWidgetProvider（外屏整页启动器）。
+  实测比对（adb dumpsys appwidget，min 列是 dp×256+1 的编码）：
+      阿田 SimpleLauncher   min=(90113x86785) resizeMode=3 widgetCategory=2
+      本应用 CoverLauncher  min=(90113x86785) resizeMode=3 widgetCategory=2
+  即 352×339dp / 可横竖拉伸 / keyguard —— 两侧解析结果逐字节一致。
+
+  本应用另一块外屏组件（双屏快捷面板）用的是 150×133 / 2×2，
+  那是"外屏一格"的大小；启动器要的是**整页**，所以是 4×4。
+
+  ⚠ 与本项目 §14 的老教训一致：外屏组件的尺寸、keyguard 位、三星私有
+  meta-data 三样里，后两样一个都不能碰；尺寸也只能照宿主认的那套槽位来，
+  自己改小会让组件直接在外屏托盘里消失（v2.11 的 2×1 试验已证伪）。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/launcher_widget_desc"
+    android:initialLayout="@layout/widget_launcher"
+    android:minHeight="339dp"
+    android:minResizeHeight="339dp"
+    android:minResizeWidth="352dp"
+    android:minWidth="352dp"
+    android:previewLayout="@layout/widget_launcher"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="4"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="keyguard" />

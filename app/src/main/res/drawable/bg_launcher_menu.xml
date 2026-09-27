@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  外屏启动器 · 长按菜单的外壳（v4.16）。
+
+  跟启动器那套配色走：背景 #0E1116、卡片层用 #12FFFFFF 那一档。
+  圆角 12dp —— 比系统 AlertDialog 那套小一圈，用户点名说系统那个"四个圆角也太大了"。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F21A1F26" />
+    <corners android:radius="12dp" />
+    <stroke
+        android:width="1dp"
+        android:color="#1FFFFFFF" />
+</shape>

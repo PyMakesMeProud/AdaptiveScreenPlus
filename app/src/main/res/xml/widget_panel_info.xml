@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「双屏快捷面板」：两个按钮的小卡片 —— **内屏（桌面）用的那一份**。
+  外屏（封面屏）那份在 widget_panel_cover.xml，两边是独立的两个 receiver。
+
+  updatePeriodMillis=0：内容全静态，不需要系统定时唤醒。
+
+  ── 尺寸 110×56 dp = 内屏 2×1 ──────────────────────────────────────
+  这是 v2.4~v2.7 一直在用的值，内屏实测可用（钉到桌面时确认框标「2 x 1」）。
+  v2.9 曾把它改成 150×133（外屏 2×2 那一格）→ 组件从外屏托盘里彻底消失（用户实测）。
+  v2.10 起内外屏拆开，这里回退到 2×1。
+
+  ⚠️ `widgetCategory` 只写 home_screen：这是内屏桌面的组件。
+     带上 keyguard 或三星私有的 8192 位，会让它变成"封面屏组件"。
+  ⚠️ 别再引入 app:widgetSize / app:widgetStyle 这类三星私有属性 ——
+     v2.9 加过，来源是「阿田自用」里一份**没有任何 receiver 引用的废弃 XML**。
+     三星自己的封面组件（天气 / 时钟）都不写它们。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_panel_desc"
+    android:initialLayout="@layout/widget_panel"
+    android:minHeight="56dp"
+    android:minResizeHeight="52dp"
+    android:minResizeWidth="110dp"
+    android:minWidth="110dp"
+    android:previewLayout="@layout/widget_panel"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="1"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

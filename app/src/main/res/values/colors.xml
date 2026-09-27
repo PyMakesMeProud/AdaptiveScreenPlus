@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      自适应图标的背景层。
+      取的是图标自身的底色（从 original/图标.jpg 采样得到 #1D84FD）。
+      前景层 ic_launcher_foreground 缩到 62% 居中、四周留透明，那圈透明就由
+      这里补成同一个蓝 —— 外圈看着就是一圈同样的蓝，裁切后也看不出接缝。
+      （62% 的来历：启动器只显示 108dp 画布中心约 72dp，原图主体占画布 78.6%，
+        要让它落进可见区，前景最多 64.7%。见 scripts/make_icon.py 文件头。）
+    -->
+    <color name="ic_launcher_background">#FF1D84FD</color>
+</resources>

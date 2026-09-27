@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」小组件的 RemoteViews 布局（5 列版）。
+
+  ⚠ 这个布局跑在**桌面进程**里（我们只递 RemoteViews 过去），
+  所以只能用 RemoteViews 支持的那几种控件和属性：
+  FrameLayout / LinearLayout / GridView / ImageView / TextView 都在白名单内，
+  但 EditText、<View>、自定义 View、动画之类一概不支持
+  —— 这也是"配置页"必须另做一个真 Activity（CoverLauncherActivity）的原因。
+
+  ── 结构 ──────────────────────────────────────────────────────────
+      背景图（铺满的 ImageView，设过背景图才铺）  ← v4.14 加
+      底板（铺满的 ImageView，浓度可调）  ← v2.19.1 加
+      工具条（恒定 54dp）  标题 + 收藏 / 搜索 / 排序 / 设置 四个图标
+      ──────────────  1dp 淡线
+      网格（占满剩下的）
+
+  工具条是 v2.18.9 加的。之前只有一个齿轮孤零零浮在右上角、网格还铺满整页，
+  齿轮看着像"贴在图标上的一颗异物"；现在把入口收进一条固定高度的条里，
+  网格从条下面开始，两件事各占各的地方。
+
+  ── 列数 ──────────────────────────────────────────────────────────
+  ⚠ GridView 的 numColumns **改不了** —— setNumColumns 没有 @RemotableViewMethod
+  注解，RemoteViews 在 targetSdk 28+ 上会拒绝反射调用它。所以"一排几个"
+  在小组件里是靠**换布局文件**实现的：这份是从 widget_launcher.xml **派生的**，只改了 numColumns。
+  别单独改这一份 —— 要改就改 4 列那份再重跑 gen_launcher_column_layouts.py，
+  四份由 CoverLauncherProvider 按设置挑一份 inflate。
+
+  同理，图标尺寸也不能靠布局参数动态改 —— itemIcon 用 wrap_content，
+  实际大小由塞进去的位图决定（见 CoverLauncherService.AppFactory）。
+  行距则由每一格自己的上下 padding 撑开（GridView.verticalSpacing 同样改不了），
+  那个 padding 是运行时 setViewPadding 设的，所以这里写的 6dp 只是占位。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+      底板：一层 ImageView，不是根布局的 background（v2.19.1 改）。
+
+      为什么多这一层：底板浓度是可调的（4 档），而 RemoteViews 里**改不了颜色**
+      （setColorFilter 要反射调 setter，不在放行名单里）。剩下的路只有"换资源" ——
+      setImageViewResource 是内置方法，稳。根布局的 background 是编译期定死的，换不了，
+      所以浓度这层必须挂在能被 setImageViewResource 指到的 ImageView 上。
+
+      ⚠ shape 没有固有尺寸 ⇒ ImageView 会直接把它铺满整个组件，圆角不会被拉伸变形
+      （这种情况跟 scaleType 无关，写死 fitXY 只是把意图说明白）。
+      ⚠ 根布局上**不要**再留 background —— 会跟这层叠起来，最低那档也会翻上去。
+    -->
+    <!--
+      背景图：设过背景图才铺（地址由 CoverLauncherProvider 递过来，没设就空着）。
+
+      ⚠ 它在底板**下面** —— 「不透明度」那层半透明黑仍然压在上面，
+      所以那个设置这时变成"图片上盖多厚的黑"，两个设置叠着用，不是二选一。
+      配置页那边也是这么叠的（见 LauncherPhoto.pageBackdrop）。
+
+      ⚠ 图片文件本身四角已经裁圆了（LauncherPhoto 存盘时画进去的），
+      这里才敢让它 match_parent —— RemoteViews 里做不了圆角遮罩，圆角只能带在图里。
+      改圆角要动 LauncherPhoto.WIDGET_RADIUS，还得跟 launcher_widget_bg_*.xml
+      的 corners 保持一致，不然两层对不齐。
+    -->
+    <ImageView
+        android:id="@+id/launcherPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/launcherBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/launcher_widget_bg_30" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!--
+          工具条：左边一行状态字（当前排序方式；开着收藏夹筛选时写「只看收藏」），
+          右边四个图标（收藏 / 搜索 / 排序 / 设置）。
+
+          ⚠⚠ 左右两条边距都是算出来的，不是随手写的。
+
+          · 右 24dp / 左 14dp 这个差是故意的：封面屏右边缘有一条 14dp 宽的侧边栏感应带
+            （CoverSidebar.EDGE_W_DP），工具条贴边会被它压住，所以右边多让 10dp。
+          · 上下按**左上角那块挖孔**摆。封面屏挖孔是左上角一个 174×31dp 的矩形
+            （369×66px，见 RULES §26.1）。Activity 投到外屏时系统会让开它（mAppBounds
+            顶上留 66px），但**小组件跑在宿主 SystemUI 的布局里，拿不到那套 cutout
+            insets** —— 系统不会替我们让开，只能自己躲：
+            · 右边那四个图标 x 已经过了 174dp，不在矩形里，可以贴顶
+              （352 − 24 − 4×34 = 192dp 起算，仍在 174dp 右侧）；
+            · 左边那行字压到条底：54（条高）− 6（下边距）− 13（11sp 行的实际高）≈ 35dp，
+              稳稳落在 31dp 之下。
+          改条高或任一边 padding 时，这两条算式都要跟着重算。
+        -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp"
+            android:paddingRight="24dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/launcherBarTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/launcher_title"
+                android:textColor="#8C97A8"
+                android:textSize="11sp" />
+
+            <ImageView
+                android:id="@+id/launcherFav"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/launcher_tool_btn"
+                android:contentDescription="@string/launcher_fav"
+                android:padding="7dp"
+                android:src="@drawable/ic_launcher_star" />
+
+            <ImageView
+                android:id="@+id/launcherSearch"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/launcher_tool_btn"
+                android:contentDescription="@string/launcher_search"
+                android:padding="7dp"
+                android:src="@drawable/ic_launcher_search" />
+
+            <ImageView
+                android:id="@+id/launcherSort"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/launcher_tool_btn"
+                android:contentDescription="@string/launcher_sort"
+                android:padding="7dp"
+                android:src="@drawable/ic_launcher_sort" />
+
+            <ImageView
+                android:id="@+id/launcherConfig"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/launcher_tool_btn"
+                android:contentDescription="@string/launcher_look"
+                android:padding="7dp"
+                android:src="@drawable/ic_launcher_gear" />
+        </LinearLayout>
+
+        <!-- 分隔线用 ImageView（1dp 高）而不是 <View> —— <View> 不在 RemoteViews 白名单里 -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#12FFFFFF"
+            android:contentDescription="@null" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <GridView
+                android:id="@+id/launcherGrid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:horizontalSpacing="2dp"
+                android:numColumns="5"
+                android:paddingLeft="8dp"
+                android:paddingTop="4dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="8dp"
+                android:scrollbars="none"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="0dp" />
+
+            <LinearLayout
+                android:id="@+id/launcherEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:text="@string/launcher_widget_empty"
+                    android:textColor="#99A3B2"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

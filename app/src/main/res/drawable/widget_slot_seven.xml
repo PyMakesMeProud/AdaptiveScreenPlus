@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  老虎机的彩蛋图案：「七」。
+
+  经典老虎机的头奖符号就是这个红色的 7 —— 它来自二十一点，早期机器把扑克牌图案
+  搬上滚轮之后，7 一直是最高赔的那一档；三连 7 就是大奖。这里照那个味道画：
+  金色底板 + 白描边的红 7。
+
+  它跟应用图标（AppIconLib 抄下来的那些）一起滚，池子里只占一格 ——
+  三格同时摇到它才算头奖，所以是个很稀有的彩蛋。
+
+  ⚠ 这张图是**矢量**，运行时由 SlotPool 渲染成和图标同尺寸的位图再交给桌面
+  （桌面只认位图 / 资源 id，不认识「这个图案是个矢量」）。
+
+  ⚠ 只画图、不画文字：RemoteViews 里给不了字形描边，而且这条链路上任何一次
+  drawable 加载失败都会让整块组件变成「无法显示微件」。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+
+    <!-- 金色底板（圆角方块，跟应用图标的轮廓对齐） -->
+    <path
+        android:fillColor="#FFF2B632"
+        android:pathData="M25,3 H71 A22,22 0 0 1 93,25 V71 A22,22 0 0 1 71,93 H25 A22,22 0 0 1 3,71 V25 A22,22 0 0 1 25,3 Z" />
+
+    <!-- 内圈亮边：加一点金属反光，免得金底看起来像一块黄塑料 -->
+    <path
+        android:pathData="M25,8 H71 A17,17 0 0 1 88,25 V71 A17,17 0 0 1 71,88 H25 A17,17 0 0 1 8,71 V25 A17,17 0 0 1 25,8 Z"
+        android:strokeColor="#80FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- 「7」的暗色底衬：往下偏 3，做出一点浮雕厚度 -->
+    <path
+        android:pathData="M24,23 L72,23 L72,39 L48,77 L31,77 L52,39 L24,39 Z"
+        android:strokeColor="#59000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="13" />
+
+    <!-- 「7」的白描边（画在红字下面，露出来的是它外面那一圈） -->
+    <path
+        android:pathData="M24,20 L72,20 L72,36 L48,74 L31,74 L52,36 L24,36 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="6" />
+
+    <!-- 「7」的红色本体 -->
+    <path
+        android:fillColor="#FFD81E28"
+        android:pathData="M24,20 L72,20 L72,36 L48,74 L31,74 L52,36 L24,36 Z" />
+</vector>

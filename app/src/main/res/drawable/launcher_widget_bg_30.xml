@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「外屏启动器」小组件的底板 —— 不透明度 30%（#4D）。
+
+  ── 为什么按档位分成四份文件（0 / 10 / 30 / 50）────────────────────
+  RemoteViews 里改不了 drawable 的颜色，也不能反射调 setter
+  （判据见 RULES §30.3：内置 API 能用，要反射的一律不能用）。
+  所以「不透明度」这个设置是靠**换资源**实现的 —— 走 setImageViewResource，
+  那是 RemoteViews 的内置方法。
+
+  ⚠⚠ 四份的**颜色必须是同一个** #101014，只有 alpha 两字节不同。
+  改色要四份一起改，不然切档位时颜色会跟着变，那就不叫「只调浓度」了。
+  档位表在 LauncherPrefs.ALPHA_CHOICES，跟这里必须一一对上：
+      0% -> #00   10% -> #1A   30% -> #4D   50% -> #80
+
+  放置方式见 widget_launcher.xml：根 FrameLayout 里第一层是个 match_parent 的
+  ImageView，形状没有固有尺寸 ⇒ ImageView 会自动把它撑满整个组件（圆角不被拉伸）。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#4D101014" />
+    <corners android:radius="20dp" />
+</shape>

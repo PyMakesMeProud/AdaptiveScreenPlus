@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  静态快捷方式（v2.18.3 新增）。
+
+  为什么要有它：三星「模式与日常程序(Routines)」的动作列表里有一项「应用快捷方式」，
+  它列的就是这里定义的东西。定义好之后，用户就能在日常程序 / Good Lock 里
+  把这些动作绑到侧键（长按电源键）之类的触发条件上。
+
+  为什么挂在 MainActivity 上而不是新 Activity：
+  Android 只认「带 LAUNCHER intent-filter 的 Activity」上的 android.app.shortcuts，
+  targetClass 可以指向别的组件（这里指向 QuickActionActivity）。
+  ⚠️ 静态快捷方式数量上限是 5 个（超出会被系统静默丢弃），所以这里只放 4 个。
+
+  extra 的 name 是 QuickActionActivity 里的 EXTRA_ACTION，值是动作 key。
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="qa_toggle_fold"
+        android:shortcutLongLabel="@string/qa_toggle_fold_long"
+        android:shortcutShortLabel="@string/qa_toggle_fold_short">
+        <intent
+            android:action="com.wb.extrotator.action.RUN_ACTION"
+            android:targetClass="com.wb.extrotator.QuickActionActivity"
+            android:targetPackage="com.wb.extrotator">
+            <extra
+                android:name="action_key"
+                android:value="toggle_fold" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="qa_cover_home"
+        android:shortcutLongLabel="@string/qa_cover_home_long"
+        android:shortcutShortLabel="@string/qa_cover_home_short">
+        <intent
+            android:action="com.wb.extrotator.action.RUN_ACTION"
+            android:targetClass="com.wb.extrotator.QuickActionActivity"
+            android:targetPackage="com.wb.extrotator">
+            <extra
+                android:name="action_key"
+                android:value="cover_home" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="qa_cover_rotate"
+        android:shortcutLongLabel="@string/qa_cover_rotate_long"
+        android:shortcutShortLabel="@string/qa_cover_rotate_short">
+        <intent
+            android:action="com.wb.extrotator.action.RUN_ACTION"
+            android:targetClass="com.wb.extrotator.QuickActionActivity"
+            android:targetPackage="com.wb.extrotator">
+            <extra
+                android:name="action_key"
+                android:value="cover_rotate" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="qa_cover_rotate_reset"
+        android:shortcutLongLabel="@string/qa_cover_rotate_reset_long"
+        android:shortcutShortLabel="@string/qa_cover_rotate_reset_short">
+        <intent
+            android:action="com.wb.extrotator.action.RUN_ACTION"
+            android:targetClass="com.wb.extrotator.QuickActionActivity"
+            android:targetPackage="com.wb.extrotator">
+            <extra
+                android:name="action_key"
+                android:value="cover_rotate_reset" />
+        </intent>
+    </shortcut>
+</shortcuts>

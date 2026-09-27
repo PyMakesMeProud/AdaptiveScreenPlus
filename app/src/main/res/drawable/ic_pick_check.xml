@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  勾选角标：绿底圆 + 白勾，外面再套一圈白描边。
+
+  为什么要有那圈白边（v2.19.0 加）：
+  角标现在是**压在图标右上角上**的（不再挪到格子角落），底下的应用图标什么颜色都有 ——
+  碰上米白 / 淡黄那种浅色图标，绿圆会糊在底色里分不清。加一圈约 1.5dp 的白边，
+  压在什么颜色上都能看出这是独立的一个标记。
+
+  圆弧写法：`M cx-r,cy a r,r 0 1,0 2r,0 a r,r 0 1,0 -2r,0 z`（两段半圆拼一个整圆）。
+  白勾沿用 Material 标准 check 路径。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M1.5,12 a10.5,10.5 0 1,0 21,0 a10.5,10.5 0 1,0 -21,0 z" />
+    <path
+        android:fillColor="#FF34C759"
+        android:pathData="M3,12 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10.8,16.4 L6.6,12.2 l1.3,-1.3 l2.9,2.9 l5.3,-5.3 l1.3,1.3 z" />
+</vector>

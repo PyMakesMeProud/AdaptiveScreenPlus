@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  快捷开关图标：「切换展开模式」。
+  两块竖着的面板拼在一起 —— 折叠屏摊开的样子。
+  与同一排里的「外屏自动旋转」（一块斜屏 + 拐弯箭头）不撞脸。
+  颜色写死白，实际颜色由界面 setColorFilter 决定。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineJoin="round"
+        android:pathData="M3.5,5.6 H10.6 V18.4 H3.5 Z" />
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineJoin="round"
+        android:pathData="M13.4,5.6 H20.5 V18.4 H13.4 Z" />
+</vector>

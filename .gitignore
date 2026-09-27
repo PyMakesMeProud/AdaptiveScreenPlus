@@ -1,0 +1,30 @@
+# ---- Android / Gradle ----
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+/app/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# ---- 编译产物 ----
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output.json
+
+# ---- 签名与密钥（本仓库不含任何签名文件）----
+*.jks
+*.keystore
+*.p12
+keystore.properties
+
+# ---- 编辑器 ----
+*.swp
+*~
+.vscode/

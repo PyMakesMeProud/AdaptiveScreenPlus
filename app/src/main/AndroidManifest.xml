@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!--
+      「投屏控制」要用媒体投影（v3.16）。
+      没有它，targetSdk 34 上 getMediaProjection() 会直接抛 SecurityException ——
+      注意它管的是"能不能起这个类型的前台服务"，不是"能不能投屏"，
+      后者仍然要用户在弹窗里点一次同意。
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!--
+      「副屏播放器」按歌名 / 歌手去 LRCLIB 取歌词（见 Lyric 里那段为什么走在线）。
+      取不到就只是不显示歌词，不影响播放控制 —— 所以这条权限纯属"有更好"。
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!--
+      「显示在其他应用上层」。
+      用途：插入便携屏时，在后台弹出一个询问对话框。
+      Android 10 起后台启动 Activity 默认被拦，而持有该权限是官方明确的豁免条件之一；
+      拿不到也不影响主功能 —— 服务会退化成「shell 拉起」或「横幅通知带按钮」。
+    -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- 长按音量上键触发动作时给一次短震动，让用户确认真的执行了。 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!--
+      「写安全设置」（v4.20）。
+      用途只有一个：让本应用能在**没有 Shizuku** 的时候自己开无线调试。
+
+      ⚠ 为什么这是必需的：Shizuku 本身要靠无线调试才起得来 —— 这个开关存在的意义
+      就是"Shizuku 挂掉的时候把它打开"，所以它**绝不能依赖 Shizuku**。而登记网络、
+      给应用补权限这两件事只能借 Shizuku 做一次（见 AdbWifi 类注释里的两条路）。
+
+      该权限的保护级别实测为 signature|privileged|development|installer|role。
+      普通安装拿不到，但带 development 就说明**可以用 `pm grant` 授予**，
+      而且不需要电脑：Shizuku 活着时应用会自己 `pm grant` 补上。
+    -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
+    <!--
+      开手电筒（v4.22，外屏通知面板顶上那排快捷开关里的「手电筒」）。
+      用途只有一个：CameraManager.setTorchMode —— 开闪光灯这件事在 API 23 之后只剩这一条路。
+
+      ⚠ 它是**运行期权限**，而系统的授权对话框会弹在**默认屏**上 —— 用户那块内屏是坏的，
+      对话框等于弹在看不见的地方。所以本应用不走"弹框申请"那条路：第一次按手电筒时若被拒，
+      直接在后台用 Shizuku 发一句 pm grant 补上（见 QuickSettings.toggleTorch）。
+    -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!--
+      调音量（v3.1）。
+      音量键事件被 VolumeKeyService 拦下之后，短按那一格得由我们自己补
+      （AudioManager.adjustSuggestedStreamVolume），这个权限是它的前置条件 —— 缺了会抛 SecurityException。
+      属于 normal 权限，装上就有，不会弹框。
+    -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <queries>
+        <package android:name="moe.shizuku.privileged.api" />
+        <!--
+          副屏桌面 / 应用选择器要枚举「所有有启动图标的应用」。
+          Android 11 起有软件包可见性限制，普通应用默认查不到别人；
+          声明一条 MAIN/LAUNCHER 的 intent 查询是官方给启动器的正规口子，
+          不需要（也不该）去申请 QUERY_ALL_PACKAGES。
+        -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+
+        <!--
+          三星封面屏「放行声明」（v4.21）。
+          让系统认下"这个应用允许在封面屏上启动东西"，不再拦成「打开手机以继续」。
+
+          ⚠ 外屏的「后台 / 主页」要用无障碍服务把 launcher 的界面摆到封面屏上
+          （见 CoverRecentsGesture 类注释）；封面屏策略原来只放行系统自己的启动器，
+          第三方这么干会被拦。实测拦下来的那条日志是
+          「Launching from CoverLauncher is blocked, ask to open phone」。
+          同一条声明在别的应用（QQ）的 manifest 里也有，纯声明、零权限。
+        -->
+        <meta-data
+            android:name="com.samsung.android.foldable.cover_launcher_policy_app"
+            android:value="true" />
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!--
+              静态快捷方式（v2.18.3）。
+              Android 只认挂在「带 LAUNCHER intent-filter 的 Activity」上的
+              android.app.shortcuts，所以声明放在这里，具体条目在 res/xml/quick_actions.xml，
+              targetClass 指向 QuickActionActivity。
+              三星日常程序里的「应用快捷方式」动作列的就是这几条。
+            -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/quick_actions" />
+        </activity>
+
+        <!--
+          Beta 功能页（v2.18.1）。
+          只有主界面右上角那个入口会进，没有对外入口、也不该被外部拉起 ⇒ exported=false。
+          单独指定深色主题：这一页整块是黑底，若沿用 application 那套 Light 主题，
+          状态栏图标会是深色，落在黑底上就看不见了。
+        -->
+        <activity
+            android:name=".BetaActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          「修复界面」的名单页（v4.17）。只有 Beta「应用管理」页那一个入口，
+          没有任何对外入口，所以 exported 保持 false。
+        -->
+        <activity
+            android:name=".RepairActivity"
+            android:exported="false"
+            android:label="@string/repair_title"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          「版本与更新」页。纯本地内容，只有主界面点标题旁的版本胶囊才会进，
+          没有任何对外入口，所以 exported 保持 false。
+        -->
+        <activity
+            android:name=".ChangelogActivity"
+            android:exported="false"
+            android:label="@string/changelog_title" />
+
+        <!--
+          插入便携屏时的询问弹窗。
+          exported 必须为 true：没有悬浮窗权限时，服务会退化成用 shell 身份执行
+          `am start -n <pkg>/.PromptActivity` 来拉起它，而 shell 启动未导出的组件
+          会被系统拒绝（"not exported from uid=..."）。
+        -->
+        <activity
+            android:name=".PromptActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/AppPromptDialog" />
+
+        <!--
+          副屏桌面：会被 shell 身份投到封面屏 / 便携屏上（am start 加 display 参数）。
+          因此 exported 必须为 true。它自己会 finish 掉，不留在最近任务里。
+        -->
+        <activity
+            android:name=".SecondaryHomeActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/cover_home_label"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.cover"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          桌面小组件被点之后真正干活的地方。透明主题、无历史，执行完立刻 finish。
+          由我们自己小组件的 PendingIntent 启动（同一 uid），所以 exported 保持 false 即可；
+          这种启动属于「用户主动触发」，不受后台启动 Activity 的限制。
+        -->
+        <activity
+            android:name=".WidgetActionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name=".RotationService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="keep external display rotation in sync with phone orientation" />
+        </service>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+          桌面小组件「双屏快捷面板」：2×1 的小条，两个按钮（折叠/展开切换 · 双屏模式）。
+          exported=false 是 AppWidget 的标准写法：更新广播由 system_server 直接点名发，
+          系统 uid 不受 exported 限制。
+          v2.2 把原来两个独立小组件合成这一个 —— 单个小组件才塞得进封面屏（外屏）。
+        -->
+        <receiver
+            android:name=".PanelWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_panel_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_panel_info" />
+            <!--
+              三星封面屏（外屏）的开关。少了这一条，小组件不会出现在
+              「设置 → 外屏 → 小组件」的托盘里（跟 widgetCategory 无关）。
+              内容只有 <samsung-appwidget-provider display="sub_screen" />，
+              见该文件的注释。
+            -->
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+        </receiver>
+
+        <!--
+          「双屏快捷面板（外屏）」—— 封面屏专用的第二份。
+          与上面那份的唯一区别是清单声明：widgetCategory 只写 keyguard（不带 home_screen）、
+          尺寸 150×133dp（外屏 2×2 那一格）。依据见 res/xml/widget_panel_cover.xml。
+          三星自己（天气 / 时钟）就是内外屏各一个 provider；混在一个里时外屏托盘列不出来。
+        -->
+        <receiver
+            android:name=".PanelCoverWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_panel_cover_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_panel_cover" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+            <!--
+              三星 SubScreen SDK 的「可见性回调」开关。三星自家的封面屏组件
+              （天气 / 时钟）都挂着这一条，值为 true —— 声明组件愿意收封面屏的显隐通知。
+            -->
+            <meta-data
+                android:name="com.samsung.android.sdk.subscreen.widget.support_visibility_callback"
+                android:value="true" />
+        </receiver>
+
+        <!--
+          「老虎机」—— 左边三个格子、右边一根摇杆，4×2（内屏）。
+
+          三格里的「图案」是手机里已装应用的图标（另有「七」彩蛋，见 SlotPool / AppIconLib），
+          摇奖就是从图标库里现抽几个；点右边的摇杆开摇，工具类与摇奖逻辑都在
+          SlotWidgetProvider 里。这里只是个标准的小部件接收器，不需要任何服务或权限。
+
+          ⚠ 摇杆按下去发的是**广播**（ACT_SPIN），不是 Activity —— 所以这个 receiver
+          要能收到自己发的广播；onReceive 里对自定义 action 有单独分支。
+        -->
+        <receiver
+            android:name=".SlotWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_slot_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_slot_info" />
+        </receiver>
+
+        <!--
+          「老虎机（外屏）」—— 封面屏那一份，逻辑完全共用，只有声明是分开的。
+
+          跟上面那份「双屏快捷面板（外屏）」同一套配方：widgetCategory 只写 keyguard、
+          尺寸用三星自家的外屏 4×2 槽位（312×133dp）、并挂上 com.samsung.android.appwidget.provider
+          这条私有 meta-data。三条缺一，组件就不会出现在「设置 → 外屏 → 小组件」里。
+        -->
+        <receiver
+            android:name=".SlotCoverWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_slot_cover_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_slot_cover" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+            <meta-data
+                android:name="com.samsung.android.sdk.subscreen.widget.support_visibility_callback"
+                android:value="true" />
+        </receiver>
+
+        <!--
+          「老虎机」三个快捷位的配置页 —— 在组件上切到自定义模式后点摇杆进来的。
+
+          用 Activity 而不是广播，是因为要弹系统对话框让用户挑动作，组件那边摆不下这个。
+          Dialog 主题让它看起来就是"从组件上就地弹出来的"；excludeFromRecents 是刻意的
+          —— 它只是配置小页，不该在最近任务里留一张卡。
+        -->
+        <activity
+            android:name=".SlotConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="@string/widget_slot_cfg_title"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.DeviceDefault.Dialog" />
+
+        <!--
+          「自定义操作（外屏）」—— 2×2 四格，每格挂一个动作，挂什么由用户自己挑。
+
+          跟「双屏快捷面板（外屏）」同一套配方：widgetCategory 只写 keyguard、
+          尺寸用三星自家的外屏 2×2 槽位（150×133dp）、并挂上
+          com.samsung.android.appwidget.provider 这条私有 meta-data。三条缺一，
+          组件就不会出现在「设置 → 外屏 → 小组件」里。
+
+          ⚠ 刻意**不**声明 android:configure —— 用户要的是"加进来先是空白、点它才设置"，
+            而 configure 是添加流程的一部分（取消就加不成），正好相反。
+        -->
+        <receiver
+            android:name=".CustomCoverWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_custom_cover_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_custom_cover" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+            <meta-data
+                android:name="com.samsung.android.sdk.subscreen.widget.support_visibility_callback"
+                android:value="true" />
+        </receiver>
+
+        <!--
+          「自定义操作」那四个格子的配置页 —— 点组件上的空格子进来的。
+
+          用 Activity 而不是广播，是因为要弹系统对话框让用户挑动作，组件那边摆不下这个。
+          Dialog 主题让它看起来就是"从组件上就地弹出来的"；excludeFromRecents 是刻意的
+          —— 它只是配置小页，不该在最近任务里留一张卡。
+        -->
+        <activity
+            android:name=".CustomCfgActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="@string/widget_custom_cfg_title"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.DeviceDefault.Dialog" />
+
+        <!--
+          「手机状态（外屏）」—— 4×2，只读：电量 / CPU 温度 / 内存 / 蓝牙设备电量。
+
+          跟「老虎机（外屏）」同一套配方（keyguard + 150×133dp / 2×2 + 三星私有 meta-data），
+          三条缺一，组件就不会出现在「设置 → 外屏 → 小组件」里。
+
+          ⚠ 它自己用 AlarmManager 定时刷（一分钟一次），因为系统只认
+            updatePeriodMillis ≥ 30 分钟，看电量温度太慢。
+          ⚠ 刻意没有任何点击：用户点名这个组件只提供信息观看、不提供点击功能。
+        -->
+        <receiver
+            android:name=".StatusCoverWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_status_cover_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_status_cover" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+            <meta-data
+                android:name="com.samsung.android.sdk.subscreen.widget.support_visibility_callback"
+                android:value="true" />
+        </receiver>
+
+        <!--
+          「外屏启动器」—— 封面屏上的 4×4 整页启动器。
+
+          它凭什么能出现在外屏托盘里，靠两条声明，缺一不可：
+            · widget_launcher_cover.xml 里的 widgetCategory=keyguard + 352×339dp / 4×4；
+            · 私有 meta-data com.samsung.android.appwidget.provider → widget_panel_samsung.xml
+              （内容只有 <samsung-appwidget-provider display="sub_screen" />）。
+          这套配方是从「阿田自用」的 APK 反查出来的，
+          详见 res/xml/widget_launcher_cover.xml 与 widget_panel_samsung.xml 的注释。
+        -->
+        <receiver
+            android:name=".CoverLauncherProvider"
+            android:exported="false"
+            android:label="@string/launcher_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_launcher_cover" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_panel_samsung" />
+            <meta-data
+                android:name="com.samsung.android.sdk.subscreen.widget.support_visibility_callback"
+                android:value="true" />
+        </receiver>
+
+        <!--
+          给启动器小组件供数的 RemoteViewsService。
+          BIND_REMOTEVIEWS 是标准写法：只有持有该权限的宿主（桌面 / 系统）能绑它。
+        -->
+        <service
+            android:name=".CoverLauncherService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <!--
+          「外屏侧边栏」的通知来源（v4.4）。
+          读别人的通知是「通知使用权」，跟无障碍是两码事，必须单独授权 ——
+          界面上那个按钮走 Shizuku 发
+          `cmd notification allow_listener <包名>/<类名>` 来授。
+          exported=true 是必须的：绑它的是系统（system_server）。
+        -->
+        <service
+            android:name=".CoverNotifListener"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!--
+          「图标库」的自动同步（老虎机摇奖用的那批应用图标）。
+
+          PACKAGE_ADDED / REMOVED / REPLACED 这三条**不在** Android 8 起的
+          「隐式广播不许静态注册」名单里，所以静态注册是收得到的；带上
+          `<data android:scheme="package" />` 是它们的标准写法（包名从 data 里给）。
+
+          exported=true 是这三条广播的硬要求（sender 是 system_server）；
+          receiver 自己不做什么，收到就丢给后台线程（见 AppIconReceiver 类注释）。
+
+          ⚠ 光靠这三条是不够的：万一哪台机器上送不到，库就会一直旧着。
+          所以 AppIconLib.ensure() 还留了一条"超过 6 小时就复查一遍"的兜底。
+        -->
+        <receiver
+            android:name=".AppIconReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+          点了启动器里的图标 / 工具条按钮时，广播落在它这儿：
+          图标 → 把那个应用投到封面屏启动；放大镜 → 搜索页；
+          排序 → 换一种排法；齿轮 → 配置页。后两个页面也一并投到封面屏，
+          这样合着盖就能把事办完。
+          exported=false：只收本应用自己发的显式 PendingIntent，不给外部留口子。
+        -->
+        <receiver
+            android:name=".LauncherTapReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.wb.extrotator.action.LAUNCHER_TAP" />
+                <action android:name="com.wb.extrotator.action.LAUNCHER_SEARCH" />
+                <action android:name="com.wb.extrotator.action.LAUNCHER_SORT" />
+                <action android:name="com.wb.extrotator.action.LAUNCHER_CONFIG" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+          「外屏启动器」的两个页面 —— 都投到封面屏上用。
+          exported=true 是必须的：它们要由 shell 身份投到封面屏
+          （am start 加 display 参数），非 exported 的组件 shell 也不好起。
+          singleInstance + 各自独立的 taskAffinity：别和外屏上别的任务串在一起；
+          两个页面分开 affinity 是因为 singleInstance 要求独占一个 task。
+        -->
+        <activity
+            android:name=".CoverLauncherActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/launcher_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.launcher"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:windowSoftInputMode="adjustPan|stateUnspecified" />
+
+        <!-- 搜索页：进去先当外屏应用抽屉用（不自动弹键盘，理由见 CoverSearchActivity.onCreate），
+             点搜索框才弹、弹了就让位给键盘（adjustResize）。 -->
+        <activity
+            android:name=".CoverSearchActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/launcher_search_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.search"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+
+
+        <!--
+          ==================== 副屏页（v4.0）====================
+
+          这几个不是系统里的应用，而是"伪应用"：只在副屏桌面（SecondaryHomeActivity）
+          的列表里置顶出现，点一下由 shell 投到副屏桌面所在那块屏上
+          （见 AppRepo.pseudoItems）。
+          ⚠ 副屏遥控板（v4.18）已整个删除，这一组现在是触控板 / 投屏控制 / 状态展示柜 / 副屏播放器；
+            副屏键盘的页面文件还在，但早已不上桌。
+
+          为什么 exported 必须是 true：投屏走的是 shell 身份（am start 加 display 参数），
+          非导出组件 shell 也起不来 —— 和 SecondaryHomeActivity 是同一条理由。
+          各自独立 taskAffinity + singleInstance：别和外屏上别的任务串在一起，
+          而且 singleInstance 要求独占一个 task。
+          （⚠ 上面这行注释里刻意不写带双连字符的命令行参数：XML 注释不允许出现
+            连续两个减号，写了整个清单直接解析失败。本版就在这儿翻过一次车。）
+        -->
+        <activity
+            android:name=".TouchpadActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/ext_pad_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.extpad"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!-- 键盘页要打字：键盘弹出来时窗口得让位（adjustResize），不然「发送」被压在键盘底下 -->
+        <activity
+            android:name=".KeyActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/ext_key_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.extkey"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!--
+          投屏控制（v3.16）—— 第四个伪应用。
+          声明跟上面三个一字不差（导出 + singleInstance + 独占 affinity），理由也一样：
+          由 shell 身份投到副屏上，非导出组件 shell 起不来。
+        -->
+        <activity
+            android:name=".CastActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/ext_cast_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.extcast"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          副屏播放器（v472）—— 第五个伪应用。
+          声明跟上面几个一字不差（导出 + singleInstance + 独占 affinity），理由也一样：
+          由 shell 身份投到副屏上，非导出组件 shell 起不来。
+        -->
+        <activity
+            android:name=".PlayerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/ext_player_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.extplayer"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          状态展示柜（v4.28）—— 第五个伪应用。
+          跟三个控制页不一样：它只读系统节点显示状态，不改显示设置、不注入输入，
+          所以不用像它们那样在 onStart / onStop 里占 ExtControlMode 的窗口。
+          exported 与 singleInstance 的理由同上面几个（shell 身份投屏、独占一个 task）。
+        -->
+        <activity
+            android:name=".StatusActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|density|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/ext_status_title"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.wb.extrotator.extstatus"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <!--
+          投屏用的前台服务。
+          ⚠ 它不是"稳一点"的可选项，而是**硬前提**：targetSdk 34 起，应用必须
+          已经跑着一个 mediaProjection 类型的前台服务，才允许调 getMediaProjection()，
+          否则直接 SecurityException（Android 14 的行为变更）。
+          所以流程是：授权结果先交给它 → 由它建 MediaProjection 与 VirtualDisplay
+          → 本页只负责把画面贴到自己的 Surface 上。
+        -->
+        <service
+            android:name=".CastService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+
+        <!--
+          Shizuku 服务（以 shell uid=2000 身份运行）需要打开这个 Provider 才能把 binder 递交给本应用。
+          android:permission 必须是 shell UID 实际持有的权限，即 INTERACT_ACROSS_USERS_FULL。
+          注意：绝不能写成 moe.shizuku.manager.permission.API_V23 —— 那是发给「客户端应用」的权限，
+          shell 并不持有它，会导致 "Permission Denial: opening provider ... requires ...API_V23"，
+          最终表现为 App 一直收不到 binder、界面显示「未检测到 Shizuku」。
+          （在 root 模式下这个错误不会暴露，因为 uid=0 通过一切权限检查。）
+        -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <!--
+          「外屏启动器」背景图的只读出口。
+
+          小组件跑在宿主进程里，图片只能递 content:// 地址过去（file:// 从 Android 7 起
+          不许跨进程给），而图存在本应用的私有目录 —— 所以要这么一层。
+
+          ⚠ exported 必须是 true（v4.14 修）。原先写 false，注释里还写着"更新小组件时
+          system_server 会把 RemoteViews 里的 URI 授权给宿主" —— 实测没有这回事：
+          宿主 systemui（uid 10049）打开时被 "not exported from UID 10383" 拒掉，
+          SecurityException 又被 RemoteViews 包成 ActionException，整块小组件直接变成
+          「无法显示微件」，不是"图空着"。
+          访问控制改在 PhotoProvider.openFile 里做：非白名单调用方一律递一张空图。
+          详见其类注释。
+        -->
+        <provider
+            android:name=".PhotoProvider"
+            android:authorities="${applicationId}.photo"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
+        <!--
+          按键快捷指令的对外入口（v2.18.3）。
+          透明中转 Activity：收到 intent → 执行动作 → toast 一句 → 立刻关掉。
+
+          exported 必须为 true，因为要被两拨外部调用：
+            · 系统（长按电源键 → 唤醒数字助手，走 ACTION_ASSIST）
+            · 自动化应用（三星日常程序 / MacroDroid，走自定义 action）
+          noHistory + excludeFromRecents + taskAffinity="" 保证它不在任何地方留痕。
+        -->
+        <activity
+            android:name=".QuickActionActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="com.wb.extrotator.action.RUN_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- 被设成系统「数字助手」之后，长按电源键进来的就是这一条 -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          同一批动作的广播入口。给自动化应用用：
+            action = com.wb.extrotator.action.RUN_ACTION
+            extra  = action_key = toggle_fold | cover_home | cover_rotate | cover_rotate_reset
+          exported 必须为 true 外部才发得进来；参数要命中白名单才会执行。
+        -->
+        <receiver
+            android:name=".QuickActionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wb.extrotator.action.RUN_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+          「长按音量上键」用的无障碍服务（v2.18.3）。
+          三星侧键设置只管电源键，应用想拦音量键只有无障碍这一条路。
+          需要用户手动去系统设置里开启；配置见 res/xml/volume_key_service.xml。
+        -->
+        <service
+            android:name=".VolumeKeyService"
+            android:exported="true"
+            android:label="@string/a11y_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/volume_key_service" />
+        </service>
+
+    </application>
+
+</manifest>

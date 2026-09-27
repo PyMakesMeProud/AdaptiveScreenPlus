@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  格子左上角那颗「收藏」小星（v4.14）。
+
+  跟右上角那个绿勾一个路数：压在图标上，不额外占地方。
+  画法是两层星 —— 先画一颗白的（当描边用），再在上面叠一颗缩小到 0.72 的琥珀色星，
+  露出来的白边就是描边。为什么要描边：底下那张应用图标什么颜色都有，
+  碰上米白 / 淡黄那种浅色图标，单画一颗黄星会糊进底色里分不清
+  （ic_pick_check 那个绿勾也是为这个才套的白圈）。
+
+  ⚠ 两层必须共用同一条星形 path，只靠 group 的 scale 缩 —— 另外写一条"小一号"的
+    path 迟早会跟上面那颗对不齐。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z" />
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.72"
+        android:scaleY="0.72">
+        <path
+            android:fillColor="#FFFFB300"
+            android:pathData="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z" />
+    </group>
+</vector>

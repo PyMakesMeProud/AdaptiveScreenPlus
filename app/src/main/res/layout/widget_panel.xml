@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「双屏快捷面板」小组件 —— 一条紧凑的面板，两个按钮并排：
+      左：折叠/展开切换      右：双屏模式
+
+  ── 尺寸 ────────────────────────────────────────────────────────
+  ⚠️ v2.6~v2.8 这里写的「封面屏组件天生独占一整页，改 cell 数毫无效果」是**错的**。
+  占几格由**声明文件**决定，内外屏各一份、互不影响：
+     · 内屏 → res/xml/widget_panel_info.xml（110×56dp / targetCell 2×1）
+     · 外屏 → res/xml/widget_panel_cover.xml（150×133dp / targetCell 2×2）
+  两边的依据与踩过的坑都写在各自文件里，别在这里重述。
+  ⚠️ 外屏那份**不能再改小**：v2.11 试过声明成 2×1，组件直接从外屏列表里消失了。
+
+  ⇒ 所以这里（**内屏**布局）要做的还是"内容别铺满"：
+     根布局**去掉底色**、gravity=center，真正的卡片给**固定 56dp 高**、垂直居中 ——
+     在内屏那 2×1 的格子里正好铺满。
+
+  ⚠️ v2.13 起**外屏不再用这份布局**：外屏的格子是 2×2（150×133dp），
+     拿这份窄条塞进去上下会空出一大截。外屏改用 widget_panel_2x2.xml ——
+     四格铺满、四个按钮（多出「方向同步」「锁横屏」两个开关）。
+
+  其它沿用 v1.9 / v2.2 的老规矩：
+  · 两个按钮都用 TextView + 圆角背景（见 widget_btn_*.xml），**不用 <Button>**，
+    免得各家桌面把主题色盖上来变成看不清的样子；
+  · 不显示任何"当前状态"，一是省地方，二是省掉一次 Shizuku 往返 ——
+    点下去本来就有 Toast 反馈；
+  · 按钮文字允许折成两行（maxLines=2，不设 ellipsize）—— 实测最小宽度下
+    「折叠/展开切换」一行放不下，会变成「折叠/展开…」。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/widgetCard"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/widget_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="6dp">
+
+        <TextView
+            android:id="@+id/btnWidgetFold"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_fold"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_fold"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnWidgetDual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_dual"
+            android:gravity="center"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:text="@string/widget_btn_dual"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,1348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beta 功能页。
+
+  为什么单独一个 Activity 而不是主界面里的第五个选项卡：
+  这一页整块是黑底，跟主界面的浅色主题不是一套；塞进同一个布局里就得给每个控件
+  写两套颜色。独立出来，主界面和它互不干扰。
+
+  结构：顶部（返回 + 标题）→ 三个子选项卡 → 内容区。
+  子选项卡的选中态沿用主界面那套绿底白字（见 beta_tab_on.xml），未选中态为黑底上的
+  淡白 —— 主界面的"淡黑未选中态"放到黑底上会直接看不见。
+
+  三个子页（v4.11 起「副屏管理」整页搬去了主界面的双屏选项卡）：
+    · 外屏管理 —— 封面屏（折叠后手机背面那块小屏）的分辨率/DPI 覆盖、分辨率预设 + 强制旋转。
+    · 指令操作 —— 侧键操作（长按电源键 / 长按音量上键）与自定义指令。
+    · 手势增强 —— 外屏的手势条与侧边栏。
+
+  ⚠️ 页面上只留一行必要的字（v4.11 收紧）：超过一行半的说明一律搬进 ⓘ，
+  两边不再互相复述 —— 常驻的长段落就是"界面杂乱"的来源。
+
+  ⚠️ 文案规矩沿用主界面那套（RULES §界面规矩）：页面上只留必要的一行说明，
+  详细解释全部进操作名右侧的「ⓘ」，正文在 strings.xml 的 info_* 里。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000"
+    android:orientation="vertical">
+
+    <!-- ==================== 顶部：返回 + 标题 ==================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/btnBetaBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="6dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="6dp"
+            android:text="← 返回"
+            android:textColor="#B3FFFFFF"
+            android:textSize="14sp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Beta 实验室"
+            android:textColor="#FFF0F0F0"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- 进来会自己弹一次同样的说明（可勾「默认不再弹出」）；这个 ⓘ 是随时想再看一眼时用的 -->
+        <TextView
+            android:id="@+id/iBetaTop"
+            style="@style/BetaInfoIcon" />
+    </LinearLayout>
+
+    <!-- ==================== 子选项卡 ==================== -->
+    <RadioGroup
+        android:id="@+id/rgBetaTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp">
+
+        <RadioButton
+            android:id="@+id/tabBetaExt"
+            style="@style/BetaTabItem"
+            android:text="外屏管理" />
+
+        <RadioButton
+            android:id="@+id/tabBetaCmd"
+            style="@style/BetaTabItem"
+            android:layout_marginStart="6dp"
+            android:text="指令操作" />
+
+        <RadioButton
+            android:id="@+id/tabBetaEdge"
+            style="@style/BetaTabItem"
+            android:layout_marginStart="6dp"
+            android:text="手势增强" />
+
+        <!-- v4.17 新增第 4 页：应用管理（目前只有「修复界面」一个入口，面积小但内容够一层，就单独给一页） -->
+        <RadioButton
+            android:id="@+id/tabBetaApp"
+            style="@style/BetaTabItem"
+            android:layout_marginStart="6dp"
+            android:text="应用管理" />
+    </RadioGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1FFFFFFF" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="28dp">
+
+
+            <!-- ============================================================
+                 子选项卡 · 外屏管理（封面屏）
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelBetaExt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外屏管理" />
+
+                    <TextView
+                        android:id="@+id/iBetaExt"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="手机背面那块小屏（封面屏）的强制覆盖。" />
+
+                <!--当前状态 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/beta_card"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvCoverState"
+                        style="@style/BetaText"
+                        android:text="读取中…" />
+                </LinearLayout>
+
+                <!--分辨率与 DPI -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="分辨率与 DPI" />
+
+                    <TextView
+                        android:id="@+id/iBetaCoverRes"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/etCoverW"
+                        style="@style/BetaInput"
+                        android:layout_weight="1"
+                        android:hint="宽" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="6dp"
+                        android:text="×"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etCoverH"
+                        style="@style/BetaInput"
+                        android:layout_weight="1"
+                        android:hint="高" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="6dp"
+                        android:text="DPI"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="13sp" />
+
+                    <EditText
+                        android:id="@+id/etCoverDpi"
+                        style="@style/BetaInput"
+                        android:layout_weight="1"
+                        android:hint="可空" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnCoverApply"
+                        style="@style/BetaButtonPrimary"
+                        android:layout_weight="1"
+                        android:text="应用覆盖" />
+
+                    <TextView
+                        android:id="@+id/btnCoverReset"
+                        style="@style/BetaButtonGhost"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="恢复默认" />
+                </LinearLayout>
+
+                <!--分辨率预设 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="分辨率预设" />
+
+                    <TextView
+                        android:id="@+id/iBetaPreset"
+                        style="@style/BetaInfoIcon" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/btnPresetAdd"
+                        style="@style/BetaChip"
+                        android:text="＋ 新增" />
+
+                    <TextView
+                        android:id="@+id/btnPresetReset"
+                        style="@style/BetaChip"
+                        android:layout_marginStart="6dp"
+                        android:text="恢复默认" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/listCoverPresets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical" />
+
+                <!--外屏旋转 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外屏旋转" />
+
+                    <TextView
+                        android:id="@+id/iBetaRotate"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnCoverRotate"
+                        style="@style/BetaButtonPrimary"
+                        android:layout_weight="1"
+                        android:text="旋转 90°" />
+
+                    <TextView
+                        android:id="@+id/btnCoverRotateReset"
+                        style="@style/BetaButtonGhost"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="恢复自动旋转" />
+                </LinearLayout>
+
+                <!-- 外屏自动旋转（v4.23）：手机横竖一变，封面屏的画面跟着转。
+                     跟上面那两颗按钮是同一件事的两半：「旋转 90°」是手动一下一下点，
+                     这个开关是自动；互不影响，手动那颗照旧能用。 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外屏自动旋转" />
+
+                    <TextView
+                        android:id="@+id/iBetaCoverAutoRot"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="手机横过来时，外屏画面也跟着转过去。" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swCoverAutoRot"
+                        style="@style/BetaSwitch"
+                        android:text="跟随手机横竖自动转" />
+                </LinearLayout>
+
+                <!--外屏启动器（v2.18.8） -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外屏启动器" />
+
+                    <TextView
+                        android:id="@+id/iBetaLauncher"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/beta_card"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvLauncherState"
+                        style="@style/BetaText"
+                        android:text="读取中…" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnLauncherOpen"
+                        style="@style/BetaButtonPrimary"
+                        android:layout_weight="1"
+                        android:text="打开配置页" />
+
+                    <TextView
+                        android:id="@+id/btnLauncherPin"
+                        style="@style/BetaButtonGhost"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="怎么钉到外屏" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ============================================================
+                 子选项卡 · 指令操作（侧键操作 + 自定义指令）
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelBetaCmd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="指令操作" />
+
+                    <TextView
+                        android:id="@+id/iBetaCmd"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="把动作绑到实体按键上，也可以挂自己写的指令。" />
+
+                <!--侧键操作：先选按键，再配那一套 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/beta_card"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/BetaSectionTitle"
+                            android:text="侧键操作" />
+
+                        <TextView
+                            android:id="@+id/iBetaKey"
+                            style="@style/BetaInfoIcon" />
+                    </LinearLayout>
+
+                    <!--按键三选一，选中态由代码给（beta_btn_primary / beta_chip） -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/btnKeyAssist"
+                            style="@style/BetaChip"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="长按电源键" />
+
+                        <TextView
+                            android:id="@+id/btnKeyVolume"
+                            style="@style/BetaChip"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="长按音量上键" />
+
+                        <TextView
+                            android:id="@+id/btnKeyVolumeDown"
+                            style="@style/BetaChip"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="长按音量下键" />
+                    </LinearLayout>
+
+                    <!--长按电源键那一套（id 沿用旧版，逻辑不用改） -->
+                    <LinearLayout
+                        android:id="@+id/keyAssistBlock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvAssistState"
+                            style="@style/BetaText"
+                            android:layout_marginTop="12dp"
+                            android:text="读取中…" />
+
+                        <TextView
+                            android:id="@+id/btnAssistPick"
+                            style="@style/BetaChip"
+                            android:layout_marginTop="10dp"
+                            android:text="选择动作" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/btnAssistSet"
+                                style="@style/BetaButtonPrimary"
+                                android:layout_weight="1"
+                                android:text="设为数字助手" />
+
+                            <TextView
+                                android:id="@+id/btnAssistTest"
+                                style="@style/BetaButtonGhost"
+                                android:layout_weight="1"
+                                android:layout_marginStart="8dp"
+                                android:text="测试" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!--长按音量上键那一套 -->
+                    <LinearLayout
+                        android:id="@+id/keyVolumeBlock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvVolumeState"
+                            style="@style/BetaText"
+                            android:layout_marginTop="12dp"
+                            android:text="读取中…" />
+
+                        <TextView
+                            android:id="@+id/btnVolumePick"
+                            style="@style/BetaChip"
+                            android:layout_marginTop="10dp"
+                            android:text="选择动作" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/btnVolumeA11y"
+                                style="@style/BetaButtonPrimary"
+                                android:layout_weight="1"
+                                android:text="开启无障碍服务" />
+
+                            <TextView
+                                android:id="@+id/btnVolumeTest"
+                                style="@style/BetaButtonGhost"
+                                android:layout_weight="1"
+                                android:layout_marginStart="8dp"
+                                android:text="测试" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!--自定义指令 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="自定义指令" />
+
+                    <TextView
+                        android:id="@+id/iBetaCustom"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="自己写的 shell 命令，存下来就能挂到侧键上。" />
+
+                <!-- ⚠️ 这条指令是给「无障碍被系统拒」准备的（One UI 8 砍了设置里的入口），
+                     所以在新增指令上面给一个固定按钮，走 Shizuku 执行、带状态回读。 -->
+                <TextView
+                    android:id="@+id/btnAllowRestricted"
+                    style="@style/BetaButtonGhost"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="允许限制性设置" />
+
+                <TextView
+                    android:id="@+id/btnGrantSecure"
+                    style="@style/BetaButtonGhost"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="授予安全设置权限" />
+
+                <TextView
+                    android:id="@+id/btnCustomAdd"
+                    style="@style/BetaButtonGhost"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="＋ 新增指令" />
+
+                <LinearLayout
+                    android:id="@+id/listCustomCmds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!--外部调用 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外部调用" />
+
+                    <TextView
+                        android:id="@+id/iBetaExternal"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="给日常程序 / MacroDroid 这类自动化用的 action 名。" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/beta_card"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/tvExternalAction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnCopyAction"
+                    style="@style/BetaButtonGhost"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="复制 action" />
+            </LinearLayout>
+
+            <!-- ============================================================
+                 子选项卡 · 手势增强（v4.2）
+
+                 两件都是「在外屏上认手势」的事：底部上滑停顿松手开后台、侧边一划就出。
+                 去黑边 v4.2 搬去「指令操作」页；v4.17 又按用户要求搬去「应用管理」页。
+                 v4.11 把常驻的长说明收进各节的 ⓘ，页面上只留一行。
+
+                 ⚠ 开关都包了一层横向 LinearLayout：BetaSwitch 是
+                 layout_width=0dp + layout_weight=1，直接摆在纵向布局里会去撑高度。
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelBetaEdge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="手势条" />
+
+                    <TextView
+                        android:id="@+id/iBetaCoverRecents"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="合盖时从外屏最下沿正中上滑：不停住回主界面，停一下再松手打开最近任务。" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swCoverRecents"
+                        style="@style/BetaSwitch"
+                        android:text="上滑停顿打开后台" />
+                </LinearLayout>
+
+                <!-- 捕获带档位（v4.3）。那一条是死区：条内触摸被我们收走、没法转给下面的应用，
+                     所以高度做成可调 —— 越小越不碍事，越大越好划。
+                     ⚠ 数值要和 CoverRecentsGesture.BAND_DP 对齐（11/16/24dp @ 封面屏 340dpi ⇒ 23/34/51px）。 -->
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="触发区高度（越小越不碍事，越大越好划）" />
+
+                <RadioGroup
+                    android:id="@+id/rgRecentsBand"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbBandSmall"
+                        style="@style/BetaTabItem"
+                        android:text="小 · 23px" />
+
+                    <RadioButton
+                        android:id="@+id/rbBandMid"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="中 · 34px" />
+
+                    <RadioButton
+                        android:id="@+id/rbBandBig"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="大 · 51px" />
+                </RadioGroup>
+
+                <!-- 触发区宽度（v4.7）。亮杠本来就只在正中，左右两边视觉上不是手势位置，
+                     识别也跟着收进中间那一段 —— 窗口窄了，被吃掉的触摸也少。
+                     ⚠ 数值要和 CoverRecentsGesture.ZONE_DIV 对齐（4/3/2/1）。 -->
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="触发区宽度（只认正中这一段，两边照常交给应用）" />
+
+                <RadioGroup
+                    android:id="@+id/rgRecentsZone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbZoneQuarter"
+                        style="@style/BetaTabItem"
+                        android:text="窄 · 1/4" />
+
+                    <RadioButton
+                        android:id="@+id/rbZoneThird"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="中 · 1/3" />
+
+                    <RadioButton
+                        android:id="@+id/rbZoneHalf"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="宽 · 1/2" />
+
+                    <RadioButton
+                        android:id="@+id/rbZoneFull"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="满宽" />
+                </RadioGroup>
+
+                <!-- 外屏 0° 时整条挪到左下角（v4.10）。0° 下外屏最底下那一条被系统的
+                     遮罩压着，手势条留在正中会跟它叠在一起；左下角那一块没有应用
+                     内容，放那儿两不耽误。只在真的是 0° 时才挪，别的角度照旧放正中。 -->
+                <CheckBox
+                    android:id="@+id/cbRecentsCorner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:buttonTint="#7AA2FF"
+                    android:paddingStart="0dp"
+                    android:text="外屏 0° 时固定在左下角"
+                    android:textColor="#F0F0F0"
+                    android:textSize="13.5sp" />
+
+                <!-- 建议切系统导航 + 直达入口（v4.6）。系统自己的「底部上滑回桌面」
+                     会跟这条手势条抢同一串触摸，换「导航条」之后那条系统手势区就没了。 -->
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="建议把系统导航换成「导航条」，否则它会跟系统自己的上滑抢同一串触摸。" />
+
+                <TextView
+                    android:id="@+id/btnNavMode"
+                    style="@style/BetaButtonPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:text="打开系统的「导航条」设置" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="18dp"
+                    android:background="#1FFFFFFF" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="外屏侧边栏" />
+
+                    <TextView
+                        android:id="@+id/iBetaSidebar"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="在外屏一条边上往里划，带出快捷面板。" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/swCoverSidebar"
+                        style="@style/BetaSwitch"
+                        android:text="在外屏上显示侧边栏" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="动画效果" />
+
+                <RadioGroup
+                    android:id="@+id/rgSidebarAnim"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbAnimRing"
+                        style="@style/BetaTabItem"
+                        android:text="动力圆环" />
+
+                    <RadioButton
+                        android:id="@+id/rbAnimGear"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="调速齿轮" />
+
+                    <RadioButton
+                        android:id="@+id/rbAnimWin"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="抽奖轮盘" />
+                </RadioGroup>
+
+                <!-- 侧边栏的设置（v4.4）。感应带是一条边上的三段之一；
+                     ⚠ 宽度是死区（跟手势条同一条铁律），所以只给 14dp，别加宽。 -->
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="感应带位置（这一侧的上 / 中 / 下其中一段）" />
+
+                <RadioGroup
+                    android:id="@+id/rgSidebarSide"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbSideLeft"
+                        style="@style/BetaTabItem"
+                        android:text="左侧" />
+
+                    <RadioButton
+                        android:id="@+id/rbSideRight"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="右侧" />
+                </RadioGroup>
+
+                <RadioGroup
+                    android:id="@+id/rgSidebarZone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbZoneTop"
+                        style="@style/BetaTabItem"
+                        android:text="上段" />
+
+                    <RadioButton
+                        android:id="@+id/rbZoneMid"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="中段" />
+
+                    <RadioButton
+                        android:id="@+id/rbZoneBottom"
+                        style="@style/BetaTabItem"
+                        android:layout_marginStart="6dp"
+                        android:text="下段" />
+                </RadioGroup>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="14dp"
+                    android:text="面板内容" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="vertical">
+
+                    <!-- 四行都是"勾选框 + 上移 / 下移"，出厂次序 通知 / 最近任务 / 返回 /
+                         回到桌面；哪一行放哪一条由代码按存下来的次序填（ExtPrefs.sidebarOrder），
+                         所以这里的文字只是出厂的占位。勾几项面板上就留几档，
+                         先后就是这四行从上到下的次序。 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbSbItem0"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="#7AA2FF"
+                            android:paddingStart="0dp"
+                            android:text="通知"
+                            android:textColor="#F0F0F0"
+                            android:textSize="13.5sp" />
+
+                        <ImageButton
+                            android:id="@+id/upSbItem0"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="上移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_up" />
+
+                        <ImageButton
+                            android:id="@+id/dnSbItem0"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="下移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_down" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbSbItem1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="#7AA2FF"
+                            android:paddingStart="0dp"
+                            android:text="最近任务"
+                            android:textColor="#F0F0F0"
+                            android:textSize="13.5sp" />
+
+                        <ImageButton
+                            android:id="@+id/upSbItem1"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="上移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_up" />
+
+                        <ImageButton
+                            android:id="@+id/dnSbItem1"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="下移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_down" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbSbItem2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="#7AA2FF"
+                            android:paddingStart="0dp"
+                            android:text="返回"
+                            android:textColor="#F0F0F0"
+                            android:textSize="13.5sp" />
+
+                        <ImageButton
+                            android:id="@+id/upSbItem2"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="上移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_up" />
+
+                        <ImageButton
+                            android:id="@+id/dnSbItem2"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="下移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_down" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbSbItem3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="#7AA2FF"
+                            android:paddingStart="0dp"
+                            android:text="回到桌面"
+                            android:textColor="#F0F0F0"
+                            android:textSize="13.5sp" />
+
+                        <ImageButton
+                            android:id="@+id/upSbItem3"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="上移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_up" />
+
+                        <ImageButton
+                            android:id="@+id/dnSbItem3"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_sort_btn"
+                            android:contentDescription="下移"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_sort_down" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvNotifState"
+                    style="@style/BetaText"
+                    android:layout_marginTop="12dp"
+                    android:text="通知使用权：正在查…" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnNotifGrant"
+                        style="@style/BetaButtonGhost"
+                        android:text="授予通知使用权" />
+                </LinearLayout>
+
+                <!-- ============================================================
+                     隐藏三键导航（v4.19）
+
+                     跟上面「手势条」是两回事：那条是我们自己补的外屏手势带，
+                     这条是系统自带的导航条本身。做法就是写
+                     Settings.Global.policy_control 的沉浸模式（见 NavBarImmersive）。
+                     ⚠ 开关仍要包一层横向 LinearLayout，理由同本页开头那条。
+                     ============================================================ -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="18dp"
+                    android:background="#1FFFFFFF" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="内屏手势" />
+
+                    <TextView
+                        android:id="@+id/iBetaInner"
+                        style="@style/BetaInfoIcon" />
+
+                    <Switch
+                        android:id="@+id/swInnerGesture"
+                        style="@style/BetaSwitch" />
+                </LinearLayout>
+
+                <!--
+                  动画风格（v4.21）：内屏手势的从属选项，所以紧跟在它下面、压一行。
+                  两档画成一对分段按钮（选中那格换实心绿），比下拉少一次点击。
+                  这一行没有 ⓘ：两档各画成什么样，已经写在「内屏手势」那条注释里了。
+                -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="动画风格" />
+
+                    <TextView
+                        android:id="@+id/btnAnimNative"
+                        style="@style/BetaButtonGhost"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="原生风格"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/btnAnimGlow"
+                        style="@style/BetaButtonGhost"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="炫彩风格"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="隐藏三键导航" />
+
+                    <TextView
+                        android:id="@+id/iBetaNavImm"
+                        style="@style/BetaInfoIcon" />
+
+                    <!-- ⚠ BetaSwitch 是 0dp + weight=1，摆在横向布局里会正好占满右边剩下的位置，
+                         滑块自然贴到最右 —— 这就是「一行名字 + 一个开关」。 -->
+                    <Switch
+                        android:id="@+id/swNavImm"
+                        style="@style/BetaSwitch" />
+                </LinearLayout>
+            </LinearLayout>
+            <!-- ============================================================
+                 子选项卡 · 应用管理（v4.17）
+
+                 目前只有一件事：外屏那份「正常显示」名单（阿田自用叫「修复界面」）。
+                 名单本体是几百行带开关的列表，塞进这个 ScrollView 里滚不动，
+                 所以本页只放入口 + 一行回读出来的状态，列表在 RepairActivity 里。
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/panelBetaApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/BetaSectionTitle"
+                        android:text="应用管理" />
+
+                    <TextView
+                        android:id="@+id/iBetaApp"
+                        style="@style/BetaInfoIcon" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/BetaText"
+                    android:layout_marginTop="8dp"
+                    android:text="哪些应用在外屏上以原生尺寸显示（字体正常、弹窗点得到）。" />
+
+                <TextView
+                    android:id="@+id/tvRepairBrief"
+                    style="@style/BetaText"
+                    android:layout_marginTop="12dp"
+                    android:text="读取中…" />
+
+                <TextView
+                    android:id="@+id/btnOpenRepair"
+                    style="@style/BetaButtonPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="修复界面" />
+
+                <!--去黑边（v4.2 从「手势增强」搬来，v4.17 按用户要求从「指令操作」再搬到「应用管理」——它就是一件应用操作） -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/beta_card"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/BetaSectionTitle"
+                            android:text="去掉应用黑边" />
+
+                        <TextView
+                            android:id="@+id/iBetaEdge"
+                            style="@style/BetaInfoIcon" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvEdgeState"
+                        style="@style/BetaText"
+                        android:layout_marginTop="12dp"
+                        android:text="读取中…" />
+
+                    <TextView
+                        android:id="@+id/btnCutoutApply"
+                        style="@style/BetaButtonPrimary"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:text="一键去掉所有应用黑边" />
+
+                    <TextView
+                        android:id="@+id/btnEdgeRefresh"
+                        style="@style/BetaButtonGhost"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:text="重新读取当前状态" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

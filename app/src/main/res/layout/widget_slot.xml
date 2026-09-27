@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  「老虎机」小组件 —— 左边一个红色大框罩住三个格子，右边竖着「计分器 + 摇杆」，4×2。
+
+  ── 两个模式共用这一份布局 ──────────────────────────────────────
+  摇奖模式：三格是 ViewFlipper（滚筒），摇杆是「摇一次」。
+  自定义模式：三格换成 slotBtnA/B/C（各自是个快捷按钮），摇杆变成「设置那三个位」。
+  切模式只切 visibility，不换布局 —— 组件换布局会闪，而且 RemoteViews 的 reapply
+  也只在 layoutId 相同时才生效。
+
+  ── 每格为什么是四层 ───────────────────────────────────────────
+  每格叠着四样，任何时刻只亮一样，全部由代码切 visibility：
+  slotRollX（滚筒，滚动中）· slotBtnX（自定义模式的快捷位）· slotResX（落定后的结果）
+  · slotGlowX（中奖金边，压在最上）。
+  ⚠ 格子底（widget_slot_cell）挂在**外层这个 FrameLayout** 上，不挂在各层上 ——
+  图标是方形的位图，铺满整格会把底板的圆角一起盖成直角。
+
+  ⚠⚠ 落定之后**必须**把滚筒设成 GONE、改由 slotResX 显示结果，不能在滚筒上"停住"：
+  ViewAnimator.showOnly() 对"当前该显示的那个 child"是无条件 startAnimation 的 ——
+  索引没变也会重播一次进入动画。定格后每帧再设一次同一个值＝那一格每帧重新从下方
+  抽上来一次，看起来就是"停下了还在闪"，三格的"依次停"也一起被糊掉。
+
+  ── 滚动为什么这么写 ────────────────────────────────────────────
+  RemoteViews 不给动画 API，能出动画的只有 ViewFlipper（它带 @RemoteView 注解，
+  setDisplayedChild 也在白名单里）。所以「滚动」= 每 130ms 调一次 setDisplayedChild，
+  动画本体写在 anim/slot_roll_in|out.xml（100ms）里，由宿主渲染 —— 组件这边只发 int。
+  ⚠ 动画时长刻意比帧间隔**短一档**：两者相等时，一次 IPC 抖动就会让下一帧打断上一跳。
+
+  ── 滚筒的图案为什么每个 child 都带 id ──────────────────────────
+  图案是**位图**（手机里已装应用的图标 + 一个「七」彩蛋，见 AppIconLib / SlotPool），
+  不是写死在 XML 里的文字。位图只能靠 setImageViewBitmap 一个个塞，而 RemoteViews
+  的动作是**按 id 找 View**的（同一个 id 在布局里出现多次只会命中第一个），
+  所以 3 个滚筒 × 8 格 = 24 个 child **各自一个 id**：slotA0..slotA7 / slotB0..slotB7
+  / slotC0..slotC7。第 k 个 child 永远对应池子里的第 k 项。
+  ⚠ 少一个 id、或改名没同步改 SlotWidgetProvider 的 REEL/ICON 表，就是一次
+  RemoteViews 异常，桌面会把整块换成「无法显示微件」。改这两处必须成对。
+
+  ── 规矩 ───────────────────────────────────────────────────────
+  · 这里每一个 android:id 都必须被 SlotWidgetProvider.make() 画到；少一个就是一次
+    RemoteViews 异常，桌面会把整块换成「无法显示微件」。删 id 前先看代码。
+  · 滚筒那四层、金边、艺术字层**都不是**可点的：Android 的分发规则是
+    「子 View 不消费就把事件让给下面的兄弟」，所以它们只挡视线、不挡点击。
+  · 计分器三个 LED 的 src 只是占位，真值每次由代码 setImageViewResource 画。
+  · ⚠ 新加标签前先跑 `scripts/check_widget_layout.py` —— 宿主只放行带 @RemoteView
+    注解的类，写了 <View> 这种会整块报废（v464 栽过）。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/slotRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <!-- 红色大框：三格与底部那行都框在里面 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/widget_slot_frame"
+                android:orientation="vertical"
+                android:padding="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                <!-- ══ 第 1 格 ══ 底板挂在最外层，四层内容依次叠上去 -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/widget_slot_cell">
+
+                    <!-- 滚筒：8 个 child = 池子里最多 8 项，停在第几项由
+                         setDisplayedChild 决定，图案由 setImageViewBitmap 塞进
+                         slotA0..slotA7。动画写在 anim/slot_roll_*.xml。 -->
+                    <ViewFlipper
+                        android:id="@+id/slotRollA"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:animateFirstView="false"
+                        android:inAnimation="@anim/slot_roll_in"
+                        android:outAnimation="@anim/slot_roll_out">
+                        <ImageView
+                            android:id="@+id/slotA0"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA1"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA2"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA3"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA4"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA5"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA6"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotA7"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                    </ViewFlipper>
+
+                    <!-- 自定义模式下的那一格（摇奖时藏着） -->
+                    <TextView
+                        android:id="@+id/slotBtnA"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_btn"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="@string/widget_slot_idle"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <!-- 落定后的结果层。滚筒藏起来之后由它显示结果图标 ——
+                         为什么非要换一层，见文件头那条 ⚠。 -->
+                    <ImageView
+                        android:id="@+id/slotResA"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone" />
+
+                    <!-- 中奖时压在最上的金边：半透明、只有描边，不挡图标也不吃点击。
+                         ⚠ 这里必须是 ImageView —— RemoteViews 的宿主只放行带 @RemoteView
+                         注解的类，android.view.View 不在其列，写成 <View> 会让宿主 inflate
+                         抛「Class not allowed to be inflated」，整块变「无法显示微件」。 -->
+                    <ImageView
+                        android:id="@+id/slotGlowA"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_cell_win"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <!-- ══ 第 2 格 ══ -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/widget_slot_cell">
+
+                    <ViewFlipper
+                        android:id="@+id/slotRollB"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:animateFirstView="false"
+                        android:inAnimation="@anim/slot_roll_in"
+                        android:outAnimation="@anim/slot_roll_out">
+                        <ImageView
+                            android:id="@+id/slotB0"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB1"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB2"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB3"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB4"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB5"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB6"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotB7"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                    </ViewFlipper>
+
+                    <TextView
+                        android:id="@+id/slotBtnB"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_btn"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="@string/widget_slot_idle"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/slotResB"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/slotGlowB"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_cell_win"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <!-- ══ 第 3 格 ══ -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/widget_slot_cell">
+
+                    <ViewFlipper
+                        android:id="@+id/slotRollC"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:animateFirstView="false"
+                        android:inAnimation="@anim/slot_roll_in"
+                        android:outAnimation="@anim/slot_roll_out">
+                        <ImageView
+                            android:id="@+id/slotC0"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC1"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC2"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC3"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC4"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC5"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC6"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                        <ImageView
+                            android:id="@+id/slotC7"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter" />
+                    </ViewFlipper>
+
+                    <TextView
+                        android:id="@+id/slotBtnC"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_btn"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="@string/widget_slot_idle"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/slotResC"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/slotGlowC"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_slot_cell_win"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+                </FrameLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/slotFoot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/widget_slot_ready"
+                    android:textColor="#99FFFFFF"
+                    android:textSize="9sp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:orientation="vertical">
+
+            <!-- 计分器：三个 LED 数码管，整条可以点（点它切换两个模式） -->
+            <LinearLayout
+                android:id="@+id/slotScoreBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_slot_led_bg"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="3dp"
+                android:paddingVertical="3dp">
+
+                <ImageView
+                    android:id="@+id/slotLedH"
+                    android:layout_width="9dp"
+                    android:layout_height="15.5dp"
+                    android:contentDescription="@string/widget_slot_score"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/widget_slot_led_blank" />
+
+                <ImageView
+                    android:id="@+id/slotLedT"
+                    android:layout_width="9dp"
+                    android:layout_height="15.5dp"
+                    android:contentDescription="@string/widget_slot_score"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/widget_slot_led_blank" />
+
+                <ImageView
+                    android:id="@+id/slotLedO"
+                    android:layout_width="9dp"
+                    android:layout_height="15.5dp"
+                    android:contentDescription="@string/widget_slot_score"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/widget_slot_led_0" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/slotLever"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/widget_slot_lever"
+                android:scaleType="fitCenter"
+                android:src="@drawable/widget_slot_lever" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!--
+      中奖艺术字。刻意**不**用 visibility 开关：ViewAnimator 在 GONE 的时候切 child
+      不播动画，而从 GONE 变 VISIBLE 那一帧又常常来不及播。所以让它一直可见，
+      「不显示」= 停在 child 0（一个空的 FrameLayout）。
+      两层都不可点，底下的摇杆照常能按。
+
+      ⭐ 它只盖左边那块（marginEnd 让开右边的「计分器 + 摇杆」那 48dp + 6dp），
+      里面那张字的图又只有原来的 1/3 大、还贴到下沿 —— 用户要求"不要遮住摇奖盘"。
+    -->
+    <ViewFlipper
+        android:id="@+id/slotWinFlip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="54dp"
+        android:animateFirstView="false"
+        android:inAnimation="@anim/slot_win_in"
+        android:outAnimation="@anim/slot_win_out">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- fitEnd 而不是 fitCenter：位图等比放大到满宽后**贴底**摆，字就落在这块区域的
+             下沿，正好压在底部那行战绩上，不往三个滚筒中间糊。 -->
+        <ImageView
+            android:id="@+id/slotWinArt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/widget_slot_win"
+            android:scaleType="fitEnd" />
+    </ViewFlipper>
+</FrameLayout>
